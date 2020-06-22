@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void faceCrop() {
         if (bitmap1 == null || bitmap2 == null) {
-            Toast.makeText(this, "Please take two photos", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please take two photos first", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 检测出人脸数据
         long start = System.currentTimeMillis();
-        Vector<Box> boxes1 = mtcnn.detectFaces(bitmapTemp1, bitmapTemp1.getWidth() / 5); // 只有这句代码检测人脸，下面都是根据Box在图片中裁减出人脸
+        Vector<Box> boxes1 = mtcnn.detectFaces(bitmapTemp1, bitmapTemp1.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
         long end = System.currentTimeMillis();
         resultTextView.setText("Face detection time-consuming forward propagation:" + (end - start));
         resultTextView2.setText("");
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void faceCompare() {
         if (bitmapCrop1 == null || bitmapCrop2 == null) {
-            Toast.makeText(this, "face compare", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "face compare - no images (USE CROP first)", Toast.LENGTH_LONG).show();
             return;
         }
 
