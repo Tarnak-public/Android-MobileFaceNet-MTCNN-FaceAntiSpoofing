@@ -7,7 +7,10 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -30,7 +33,7 @@ import java.util.List;
  */
 public class CameraActivity extends AppCompatActivity {
     private static final int IMAGE_FORMAT = ImageFormat.NV21;
-    private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK ;//Camera.CameraInfo.CAMERA_FACING_FRONT;
 
     private SurfaceView mSurfaceView;
     private Camera mCamera;
@@ -38,6 +41,7 @@ public class CameraActivity extends AppCompatActivity {
     private int displayDegree;
 
     private byte[] mData;
+    private boolean isPreviewRunning = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,13 +78,49 @@ public class CameraActivity extends AppCompatActivity {
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+/*
+                if (isPreviewRunning)
+                {
+                    mCamera.stopPreview();
+                }
 
+                Camera.Parameters parameters = mCamera.getParameters();
+                Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+
+                if(display.getRotation() == Surface.ROTATION_0)
+                {
+                    parameters.setPreviewSize(height, width);
+                    mCamera.setDisplayOrientation(90);
+                }
+
+                if(display.getRotation() == Surface.ROTATION_90)
+                {
+                    parameters.setPreviewSize(width, height);
+                }
+
+                if(display.getRotation() == Surface.ROTATION_180)
+                {
+                    parameters.setPreviewSize(height, width);
+                }
+
+                if(display.getRotation() == Surface.ROTATION_270)
+                {
+                    parameters.setPreviewSize(width, height);
+                    mCamera.setDisplayOrientation(180);
+                }
+
+                mCamera.setParameters(parameters);
+                mCamera.startPreview();
+                isPreviewRunning = true;
+*/
             }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 releaseCamera();
             }
+
+
         });
     }
 
@@ -90,7 +130,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     private void openCamera(SurfaceHolder holder) {
         releaseCamera();
-        mCamera = Camera.open(CAMERA_ID);
+        mCamera = Camera.open(CAMERA_ID);//CAMERA_ID
         Camera.Parameters parameters = mCamera.getParameters();
         displayDegree = setCameraDisplayOrientation(CAMERA_ID, mCamera);
 
@@ -115,7 +155,7 @@ public class CameraActivity extends AppCompatActivity {
                 camera.addCallbackBuffer(data);
             }
         });
-
+        isPreviewRunning = true;
         mCamera.startPreview();
     }
 
@@ -152,6 +192,8 @@ public class CameraActivity extends AppCompatActivity {
         int rotation = getWindowManager().getDefaultDisplay()
                 .getRotation();
         int degrees = 0;
+
+        //rotation = 90;
         switch (rotation) {
             case Surface.ROTATION_0:
                 degrees = 0;
@@ -174,8 +216,22 @@ public class CameraActivity extends AppCompatActivity {
             displayDegree = (info.orientation - degrees + 360) % 360;
         }
         camera.setDisplayOrientation(displayDegree);
+/*
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.set("orientation", "portrait");
+        parameters.setRotation(90);
+        camera.setParameters(parameters);
+*/
+
         return displayDegree;
     }
+
+    private static final String LOG_TAG = "CameraPreviewSample";
+    private static final String CAMERA_PARAM_ORIENTATION = "orientation";
+    private static final String CAMERA_PARAM_LANDSCAPE = "landscape";
+    private static final String CAMERA_PARAM_PORTRAIT = "portrait";
+
+
 
     /**
      * 获取合适的分辨率
