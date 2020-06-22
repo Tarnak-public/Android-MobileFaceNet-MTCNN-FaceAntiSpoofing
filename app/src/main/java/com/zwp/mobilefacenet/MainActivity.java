@@ -200,6 +200,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        compareMTCNN();
+    }
+
+    void compareMTCNN() {
         long start = System.currentTimeMillis();
         float same = mfn.compare(bitmapCrop1, bitmapCrop2); // 就这一句有用代码，其他都是UI
         long end = System.currentTimeMillis();
