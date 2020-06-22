@@ -13,8 +13,8 @@
         android:id="@+id/take_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="拍照"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:text="take_picture" />
 </RelativeLayout>

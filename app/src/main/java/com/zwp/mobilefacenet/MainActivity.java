@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void faceCrop() {
         if (bitmap1 == null || bitmap2 == null) {
-            Toast.makeText(this, "请拍摄两张照片", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please take two photos", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -100,11 +101,11 @@ public class MainActivity extends AppCompatActivity {
         long start = System.currentTimeMillis();
         Vector<Box> boxes1 = mtcnn.detectFaces(bitmapTemp1, bitmapTemp1.getWidth() / 5); // 只有这句代码检测人脸，下面都是根据Box在图片中裁减出人脸
         long end = System.currentTimeMillis();
-        resultTextView.setText("人脸检测前向传播耗时：" + (end - start));
+        resultTextView.setText("Face detection time-consuming forward propagation:" + (end - start));
         resultTextView2.setText("");
         Vector<Box> boxes2 = mtcnn.detectFaces(bitmapTemp2, bitmapTemp2.getWidth() / 5); // 只有这句代码检测人脸，下面都是根据Box在图片中裁减出人脸
         if (boxes1.size() == 0 || boxes2.size() == 0) {
-            Toast.makeText(MainActivity.this, "未检测到人脸", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "No face detected", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -137,14 +138,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void antiSpoofing() {
         if (bitmapCrop1 == null || bitmapCrop2 == null) {
-            Toast.makeText(this, "请先检测人脸", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please detect the face first", Toast.LENGTH_LONG).show();
             return;
         }
 
         // 活体检测前先判断图片清晰度
         int laplace1 = fas.laplacian(bitmapCrop1);
 
-        String text = "清晰度检测结果left：" + laplace1;
+        String text = "Clarity test results left：" + laplace1;
         if (laplace1 < FaceAntiSpoofing.LAPLACIAN_THRESHOLD) {
             text = text + "，" + "False";
             resultTextView.setTextColor(getResources().getColor(android.R.color.holo_red_light));
@@ -156,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
             long end = System.currentTimeMillis();
 
-            text = "活体检测结果left：" + score1;
+            text = "Biopsy results left：" + score1;
             if (score1 < FaceAntiSpoofing.THRESHOLD) {
                 text = text + "，" + "True";
                 resultTextView.setTextColor(getResources().getColor(android.R.color.holo_green_light));
@@ -164,21 +165,21 @@ public class MainActivity extends AppCompatActivity {
                 text = text + "，" + "False";
                 resultTextView.setTextColor(getResources().getColor(android.R.color.holo_red_light));
             }
-            text = text + "。耗时" + (end - start);
+            text = text + ". time consuming" + (end - start);
         }
         resultTextView.setText(text);
 
         // 第二张图片活体检测前先判断图片清晰度
         int laplace2 = fas.laplacian(bitmapCrop2);
 
-        String text2 = "清晰度检测结果left：" + laplace2;
+        String text2 = "Clarity test results left：" + laplace2;
         if (laplace2 < FaceAntiSpoofing.LAPLACIAN_THRESHOLD) {
             text2 = text2 + "，" + "False";
             resultTextView2.setTextColor(getResources().getColor(android.R.color.holo_red_light));
         } else {
             // 活体检测
             float score2 = fas.antiSpoofing(bitmapCrop2);
-            text2 = "活体检测结果right：" + score2;
+            text2 = "Biopsy results right：" + score2;
             if (score2 < FaceAntiSpoofing.THRESHOLD) {
                 text2 = text2 + "，" + "True";
                 resultTextView2.setTextColor(getResources().getColor(android.R.color.holo_green_light));
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void faceCompare() {
         if (bitmapCrop1 == null || bitmapCrop2 == null) {
-            Toast.makeText(this, "请先检测人脸", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "face compare", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -203,7 +204,8 @@ public class MainActivity extends AppCompatActivity {
         float same = mfn.compare(bitmapCrop1, bitmapCrop2); // 就这一句有用代码，其他都是UI
         long end = System.currentTimeMillis();
 
-        String text = "人脸比对结果：" + same;
+        Log.d("faceCompare()", "Face comparison result: "+same );
+        String text = "Face comparison results：" + same;
         if (same > MobileFaceNet.THRESHOLD) {
             text = text + "，" + "True";
             resultTextView.setTextColor(getResources().getColor(android.R.color.holo_green_light));
@@ -211,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
             text = text + "，" + "False";
             resultTextView.setTextColor(getResources().getColor(android.R.color.holo_red_light));
         }
-        text = text + "，耗时" + (end - start);
+        text = text + "，time elapsed" + (end - start);
         resultTextView.setText(text);
         resultTextView2.setText("");
     }
