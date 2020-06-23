@@ -51,15 +51,17 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        TextureView textureView = new TextureView(this);
-
+        TextureView textureView;
+/*
+        textureView = new TextureView(this);
         textureView.setSurfaceTextureListener(this);
-
         applyMirroringOnCamera(textureView);
-
         setContentView(textureView);
-
+*/
+        setContentView(R.layout.activity_live_camera_texture_view);
+        textureView = ((TextureView)findViewById(R.id.LiveCameraTextureViewActivity));
+        textureView.setSurfaceTextureListener(this);
+        applyMirroringOnCamera(textureView);
 
     }
 
