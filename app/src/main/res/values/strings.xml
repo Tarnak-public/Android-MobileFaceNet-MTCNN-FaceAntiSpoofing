@@ -9,4 +9,9 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="crop">crop</string>
+    <string name="de_spoofing">de spoofing</string>
+    <string name="compare">compare</string>
+    <string name="result">result</string>
+    <string name="imageview_cropped_2">ImageView cropped 2</string>
 </resources>

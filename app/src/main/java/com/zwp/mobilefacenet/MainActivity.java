@@ -2,6 +2,7 @@ package com.zwp.mobilefacenet;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
@@ -42,10 +43,14 @@ public class MainActivity extends AppCompatActivity {
     private TextView resultTextView;
     private TextView resultTextView2;
 
+    public static Context appContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        appContext = getApplicationContext();
 
         imageButton1 = findViewById(R.id.image_button1);
         imageButton2 = findViewById(R.id.image_button2);
@@ -235,7 +240,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 currentBtn = (ImageButton) v;
-                startActivity(new Intent(MainActivity.this, CameraActivity.class));
+                //startActivity(new Intent(MainActivity.this, CameraActivity.class));
+                startActivity(new Intent(MainActivity.this, LiveCameraTextureViewActivity.class));
             }
         };
         imageButton1.setOnClickListener(listener);

@@ -19,6 +19,8 @@ package com.zwp.mobilefacenet;
 
 
 import android.app.Activity;
+import android.content.res.Resources;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -45,14 +47,33 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
     private Camera mCamera;
     private SurfaceTexture mSurfaceTexture;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         TextureView textureView = new TextureView(this);
+
         textureView.setSurfaceTextureListener(this);
 
+        applyMirroringOnCamera(textureView);
+
         setContentView(textureView);
+
+
+    }
+
+    /*
+       Fix for back camera treated as front and do Mirroring
+    */
+    void applyMirroringOnCamera( TextureView textureView) {
+
+       // MainActivity.appContext.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = Resources.getSystem().getDisplayMetrics().widthPixels;
+        Matrix matrix = new Matrix();
+        matrix.setScale(-1, 1);
+        matrix.postTranslate( width, 0);
+        textureView.setTransform(matrix);
     }
 
     @Override
@@ -81,6 +102,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // Invoked every time there's a new Camera preview frame
+
         //Log.d(TAG, "updated, ts=" + surface.getTimestamp());
     }
 
@@ -116,6 +138,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
             if(display.getRotation() == Surface.ROTATION_270) {
                 mCamera.setDisplayOrientation(180);
             }
+
             mCamera.startPreview();
         } catch (IOException ioe) {
             // Something bad happened
