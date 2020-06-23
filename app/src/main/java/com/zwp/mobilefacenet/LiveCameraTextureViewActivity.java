@@ -21,6 +21,7 @@ package com.zwp.mobilefacenet;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
@@ -30,6 +31,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
+import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
@@ -40,6 +42,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
+
+import static android.view.SurfaceHolder.*;
 
 /**
  * More or less straight out of TextureView's doc.
@@ -87,7 +91,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
                 Log.d(TAG, "onListener() TakePictureButton()");
                 //MyUtil.convertBitmap() time elapsed 566ms
                 start = System.currentTimeMillis();
-                bitmap = MyUtil.convertBitmap(mData, mCamera, displayDegree);
+                //bitmap = MyUtil.convertBitmap(mData, mCamera, displayDegree);
                 end = System.currentTimeMillis();
 
                 Log.d(TAG, "MyUtil.convertBitmap() time elapsed " + (end - start) + "ms");
@@ -152,8 +156,28 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // Invoked every time there's a new Camera preview frame
+/*
+		TextureView.getBitmap(bitmap);
 
-        //Log.d(TAG, "updated, ts=" + surface.getTimestamp());
+		final Canvas c = SurfaceHolder.lockCanvas();
+		if ( c != null) {
+			//canvas.drawText("getBmp= "  + time1, 10, 40, paint1);
+			c.drawBitmap(bmp, 0, 0, null);
+            SurfaceHolder.unlockCanvasAndPost(c);
+		}
+		long total = System.currentTimeMillis() - time0;
+		long time2 = total -time1;
+		Log.i("onSurfaceTextureUpdated", "timing: getBmp= "  + time1 + " draw= " + time2 + " total= " + total);
+*/
+
+
+        // Invoked every time there's a new Camera preview frame
+        start = System.currentTimeMillis();
+        bitmap = textureView.getBitmap();
+        end = System.currentTimeMillis();
+        //Log.d(TAG, "onSurfaceTextureUpdated() " + surface.getTimestamp());
+        Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
+
     }
 
 

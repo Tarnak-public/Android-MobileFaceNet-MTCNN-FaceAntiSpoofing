@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         int percentageSame = (int) ((same) * 100);
 
         Log.d("faceCompare()", "Face comparison result: [" + shortedFloat +  "] ["  + percentageSame + "%]");
-        String text = "Face comparison results took:[" + percentageSame + "%] for threshold:[" + MobileFaceNet.THRESHOLD + "] results:" ;
+        String text = "Face comparison result is:[" + percentageSame + "%] for threshold:[" + MobileFaceNet.THRESHOLD + "] is matched:" ;
         if (same > MobileFaceNet.THRESHOLD) {
             text = text + "[True]";
             resultTextView.setTextColor(getResources().getColor(android.R.color.holo_green_light));
