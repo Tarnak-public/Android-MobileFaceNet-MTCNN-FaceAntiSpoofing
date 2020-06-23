@@ -13,7 +13,7 @@ android:layout_height="match_parent">
     tools:context="LiveCameraTextureViewPreview" />
 
 <Button
-    android:id="@+id/take_picture"
+    android:id="@+id/TakePictureButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"

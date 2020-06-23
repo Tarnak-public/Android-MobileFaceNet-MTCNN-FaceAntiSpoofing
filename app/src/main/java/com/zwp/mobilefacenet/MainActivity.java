@@ -22,6 +22,8 @@ import com.zwp.mobilefacenet.mtcnn.Box;
 import com.zwp.mobilefacenet.mtcnn.MTCNN;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,6 +47,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static Context appContext;
 
+//    private ImageButton TakePictureButton1;
+//    private ImageButton TakePictureButton2;
+
+    public static List<String> modelsWithCameraIssue = Arrays.asList("GC116C");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
         Button compareBtn = findViewById(R.id.compare_btn);
         resultTextView = findViewById(R.id.result_text_view);
         resultTextView2 = findViewById(R.id.result_text_view2);
+
+
 
         try {
             mtcnn = new MTCNN(getAssets());
@@ -244,7 +253,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, LiveCameraTextureViewActivity.class));
             }
         };
+
         imageButton1.setOnClickListener(listener);
         imageButton2.setOnClickListener(listener);
+
     }
 }

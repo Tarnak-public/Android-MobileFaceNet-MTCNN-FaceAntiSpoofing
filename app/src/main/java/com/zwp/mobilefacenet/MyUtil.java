@@ -7,19 +7,34 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.hardware.Camera;
+import android.os.Build;
+import android.util.Log;
+import android.view.Surface;
+import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
 
 import com.zwp.mobilefacenet.mtcnn.Box;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.List;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class MyUtil {
+
+    long start = System.currentTimeMillis();
+    long end = System.currentTimeMillis();
+//    Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
+
 
     /**
      * 从assets中读取图片
@@ -246,4 +261,128 @@ public class MyUtil {
         }
         return result;
     }
+
+    public static Bitmap convertBitmap(byte[] data, Camera camera, int displayDegree) {
+        Camera.Size previewSize = camera.getParameters().getPreviewSize();
+        YuvImage yuvimage = new YuvImage(
+                data,
+                camera.getParameters().getPreviewFormat(),
+                previewSize.width,
+                previewSize.height,
+                null);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        yuvimage.compressToJpeg(new Rect(0, 0, previewSize.width, previewSize.height), 100, baos);
+        byte[] rawImage = baos.toByteArray();
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
+        Matrix m = new Matrix();
+        // 这里我的手机需要旋转一下图像方向才正确，如果在你们的手机上不正确，自己调节，
+        // 正式项目中不能这么写，需要计算方向，计算YuvImage方向太麻烦，我这里没有做。
+        //m.setRotate(-displayDegree);
+        Log.d("CameraActivity()", "->convertBitmap() displayDegree changed as workaround");
+        m.setRotate(displayDegree);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+    }
+
+    /**
+     * 设置相机显示方向
+     * @param cameraId 前或者后摄像头
+     * @param camera 相机
+     * @return
+     */
+    public static int setCameraDisplayOrientation(int cameraId, Camera camera, WindowManager windowManager) {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        int rotation = windowManager.getDefaultDisplay().getRotation();
+        int degrees = 0;
+
+        //rotation = 90;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+//hacks for gfx operations
+//https://github.com/google/grafika
+
+        Log.d("android-model: ", Build.MODEL);
+        if( MainActivity.modelsWithCameraIssue.contains(Build.MODEL) == true) {
+            degrees = 270;
+            Log.d("onResume()","For this model workaround for camera rotation was needed.");
+        }
+
+        int displayDegree;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            displayDegree = (info.orientation + degrees) % 360;
+            displayDegree = (360 - displayDegree) % 360;  // compensate the mirror
+        } else {
+            displayDegree = (info.orientation - degrees + 360) % 360; //original way
+            //displayDegree = (info.orientation + degrees) % 180;
+            //displayDegree = (360 - displayDegree) % 360;  // compensate the mirror
+
+        }
+        camera.setDisplayOrientation(displayDegree);
+
+        /*
+        Matrix matrix = new Matrix();
+        matrix.setScale(-1, 1);
+        matrix.postTranslate(mSurfaceView.getWidth(), 0);
+        */
+        //mTextureView.setTransform(matrix);
+        //(mSurfaceView).setTransform(matrix);
+        //mSurfaceView.setScale(-(float) newWidth / viewWidth, (float) newHeight / viewHeight, viewWidth / 2.f , 0);
+
+        //mSurfaceView.setScaleX(-(float) mSurfaceView.getWidth() / mSurfaceView.getWidth());
+        //mSurfaceView.setScaleY(-(float) mSurfaceView.getHeight() / mSurfaceView.getHeight());
+        return displayDegree;
+    }
+
+
+    /**
+     * 获取合适的分辨率
+     * @param sizes Camera SupportedPreviewSizes
+     * @param w 显示界面宽
+     * @param h 显示界面高
+     * @return
+     */
+    public  static Camera.Size getOptimalSize(@NonNull List<Camera.Size> sizes, int w, int h) {
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio = (double) h / w;
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
+
+        for (Camera.Size size : sizes) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+
+        return optimalSize;
+    }
+
 }

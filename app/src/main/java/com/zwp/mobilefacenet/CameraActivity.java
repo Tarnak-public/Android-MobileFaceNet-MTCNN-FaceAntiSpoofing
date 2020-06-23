@@ -46,7 +46,7 @@ public class CameraActivity extends AppCompatActivity {
     private byte[] mData;
     private boolean isPreviewRunning = false;
 
-    List<String> modelsWithCameraIssue = Arrays.asList("GC116C");
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,8 +60,9 @@ public class CameraActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 由于照片太大，使用Intent传不回去，为了简单就使用静态变量了，在自己项目里建议先存到文件中
-                Bitmap bitmap = convertBitmap(mData, mCamera);
+                // Because the photo is too large, it cannot be passed back using Intent. For simplicity, static variables are used.
+                // It is recommended to save it to a file in your own project.
+                Bitmap bitmap = MyUtil.convertBitmap(mData, mCamera, displayDegree);
                 MainActivity.currentBtn.setImageBitmap(bitmap);
                 if (MainActivity.currentBtn.getId() == R.id.image_button1) {
                     MainActivity.bitmap1 = bitmap;
@@ -72,7 +73,7 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        // 打开相机并放入surfaceView中
+        //Turn on the camera and put it in surfaceView
         mSurfaceView = findViewById(R.id.surface);
         SurfaceHolder surfaceHolder = mSurfaceView.getHolder();
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
@@ -83,41 +84,7 @@ public class CameraActivity extends AppCompatActivity {
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-/*
-                if (isPreviewRunning)
-                {
-                    mCamera.stopPreview();
-                }
 
-                Camera.Parameters parameters = mCamera.getParameters();
-                Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-
-                if(display.getRotation() == Surface.ROTATION_0)
-                {
-                    parameters.setPreviewSize(height, width);
-                    mCamera.setDisplayOrientation(90);
-                }
-
-                if(display.getRotation() == Surface.ROTATION_90)
-                {
-                    parameters.setPreviewSize(width, height);
-                }
-
-                if(display.getRotation() == Surface.ROTATION_180)
-                {
-                    parameters.setPreviewSize(height, width);
-                }
-
-                if(display.getRotation() == Surface.ROTATION_270)
-                {
-                    parameters.setPreviewSize(width, height);
-                    mCamera.setDisplayOrientation(180);
-                }
-
-                mCamera.setParameters(parameters);
-                mCamera.startPreview();
-                isPreviewRunning = true;
-*/
             }
 
             @Override
@@ -137,10 +104,10 @@ public class CameraActivity extends AppCompatActivity {
         releaseCamera();
         mCamera = Camera.open(CAMERA_ID);//CAMERA_ID
         Camera.Parameters parameters = mCamera.getParameters();
-        displayDegree = setCameraDisplayOrientation(CAMERA_ID, mCamera);
+        displayDegree = MyUtil.setCameraDisplayOrientation(CAMERA_ID, mCamera, getWindowManager());
 
         // 获取合适的分辨率
-        mSize = getOptimalSize(parameters.getSupportedPreviewSizes(), mSurfaceView.getWidth(), mSurfaceView.getHeight());
+        mSize = MyUtil.getOptimalSize(parameters.getSupportedPreviewSizes(), mSurfaceView.getWidth(), mSurfaceView.getHeight());
         parameters.setPreviewSize(mSize.width, mSize.height);
 
         parameters.setPreviewFormat(IMAGE_FORMAT);
@@ -185,68 +152,6 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 设置相机显示方向
-     * @param cameraId 前或者后摄像头
-     * @param camera 相机
-     * @return
-     */
-    private int setCameraDisplayOrientation(int cameraId, Camera camera) {
-        Camera.CameraInfo info = new Camera.CameraInfo();
-        Camera.getCameraInfo(cameraId, info);
-        int rotation = getWindowManager().getDefaultDisplay()
-                .getRotation();
-        int degrees = 0;
-
-        //rotation = 90;
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degrees = 0;
-                break;
-            case Surface.ROTATION_90:
-                degrees = 90;
-                break;
-            case Surface.ROTATION_180:
-                degrees = 180;
-                break;
-            case Surface.ROTATION_270:
-                degrees = 270;
-                break;
-        }
-//hacks for gfx operations
-//https://github.com/google/grafika
-
-        Log.d("android-model: ", Build.MODEL);
-        if( modelsWithCameraIssue.contains(Build.MODEL) == true) {
-            degrees = 270;
-            Log.d("onResume()","For this model workaround for camera rotation was needed.");
-        }
-
-        int displayDegree;
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            displayDegree = (info.orientation + degrees) % 360;
-            displayDegree = (360 - displayDegree) % 360;  // compensate the mirror
-        } else {
-            displayDegree = (info.orientation - degrees + 360) % 360; //original way
-           //displayDegree = (info.orientation + degrees) % 180;
-            //displayDegree = (360 - displayDegree) % 360;  // compensate the mirror
-
-        }
-        camera.setDisplayOrientation(displayDegree);
-
-        /*
-        Matrix matrix = new Matrix();
-        matrix.setScale(-1, 1);
-        matrix.postTranslate(mSurfaceView.getWidth(), 0);
-        */
-        //mTextureView.setTransform(matrix);
-        //(mSurfaceView).setTransform(matrix);
-        //mSurfaceView.setScale(-(float) newWidth / viewWidth, (float) newHeight / viewHeight, viewWidth / 2.f , 0);
-
-        //mSurfaceView.setScaleX(-(float) mSurfaceView.getWidth() / mSurfaceView.getWidth());
-        mSurfaceView.setScaleY(-(float) mSurfaceView.getHeight() / mSurfaceView.getHeight());
-        return displayDegree;
-    }
 
     private static final String LOG_TAG = "CameraPreviewSample";
     private static final String CAMERA_PARAM_ORIENTATION = "orientation";
@@ -255,63 +160,5 @@ public class CameraActivity extends AppCompatActivity {
 
 
 
-    /**
-     * 获取合适的分辨率
-     * @param sizes Camera SupportedPreviewSizes
-     * @param w 显示界面宽
-     * @param h 显示界面高
-     * @return
-     */
-    private static Camera.Size getOptimalSize(@NonNull List<Camera.Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) h / w;
-        Camera.Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
 
-        int targetHeight = h;
-
-        for (Camera.Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
-            }
-        }
-
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-
-        return optimalSize;
-    }
-
-    private Bitmap convertBitmap(byte[] data, Camera camera) {
-        Camera.Size previewSize = camera.getParameters().getPreviewSize();
-        YuvImage yuvimage = new YuvImage(
-                data,
-                camera.getParameters().getPreviewFormat(),
-                previewSize.width,
-                previewSize.height,
-                null);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        yuvimage.compressToJpeg(new Rect(0, 0, previewSize.width, previewSize.height), 100, baos);
-        byte[] rawImage = baos.toByteArray();
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-        Bitmap bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
-        Matrix m = new Matrix();
-        // 这里我的手机需要旋转一下图像方向才正确，如果在你们的手机上不正确，自己调节，
-        // 正式项目中不能这么写，需要计算方向，计算YuvImage方向太麻烦，我这里没有做。
-        //m.setRotate(-displayDegree);
-        Log.d("CameraActivity()", "->convertBitmap() displayDegree changed as workaround");
-        m.setRotate(displayDegree);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
-    }
 }

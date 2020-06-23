@@ -20,6 +20,8 @@ package com.zwp.mobilefacenet;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -29,7 +31,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,39 +47,80 @@ import java.io.IOException;
  * TODO: add options for different display sizes, frame rates, camera selection, etc.
  */
 public class LiveCameraTextureViewActivity extends Activity implements TextureView.SurfaceTextureListener {
-    private static final String TAG = MainActivity.TAG;
+    private static final String TAG = "LiveCameraTViewActivity";
+
+    private static final int IMAGE_FORMAT = ImageFormat.NV21;
+    private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//Camera.CameraInfo.CAMERA_FACING_FRONT;
 
     private Camera mCamera;
     private SurfaceTexture mSurfaceTexture;
+    TextureView textureView;
+    private int displayDegree;
+    private byte[] mData;
+    private Camera.Size mSize;
+    Bitmap bitmap;
 
+    long start = System.currentTimeMillis();
+    long end = System.currentTimeMillis();
+//    Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TextureView textureView;
-/*
-        textureView = new TextureView(this);
-        textureView.setSurfaceTextureListener(this);
-        applyMirroringOnCamera(textureView);
-        setContentView(textureView);
-*/
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_live_camera_texture_view);
-        textureView = ((TextureView)findViewById(R.id.LiveCameraTextureViewActivity));
+        textureView = ((TextureView) findViewById(R.id.LiveCameraTextureViewActivity));
         textureView.setSurfaceTextureListener(this);
         applyMirroringOnCamera(textureView);
 
+        Button button = findViewById(R.id.TakePictureButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Because the photo is too large, it cannot be passed back using Intent. For simplicity, static variables are used.// It is recommended to save it to a file in your own project.
+
+                Log.d(TAG, "onListener() TakePictureButton()");
+                //MyUtil.convertBitmap() time elapsed 566ms
+                start = System.currentTimeMillis();
+                bitmap = MyUtil.convertBitmap(mData, mCamera, displayDegree);
+                end = System.currentTimeMillis();
+
+                Log.d(TAG, "MyUtil.convertBitmap() time elapsed " + (end - start) + "ms");
+
+                //here this is working but need to swap mirroring
+                //textureView.getBitmap() time elapsed 47
+                start = System.currentTimeMillis();
+                //bitmap = textureView.getBitmap();
+                end = System.currentTimeMillis();
+
+                Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
+
+                MainActivity.currentBtn.setImageBitmap(bitmap);
+                if (MainActivity.currentBtn.getId() == R.id.image_button1) {
+                    MainActivity.bitmap1 = bitmap;
+                } else {
+                    MainActivity.bitmap2 = bitmap;
+                }
+                finish();
+            }
+        });
     }
 
     /*
        Fix for back camera treated as front and do Mirroring
     */
-    void applyMirroringOnCamera( TextureView textureView) {
+    void applyMirroringOnCamera(TextureView textureView) {
 
-       // MainActivity.appContext.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        // MainActivity.appContext.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = Resources.getSystem().getDisplayMetrics().widthPixels;
         Matrix matrix = new Matrix();
         matrix.setScale(-1, 1);
-        matrix.postTranslate( width, 0);
+        matrix.postTranslate(width, 0);
         textureView.setTransform(matrix);
     }
 
@@ -96,7 +142,9 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        Log.d(TAG, "onSurfaceTextureDestroyed() ");
         mCamera.stopPreview();
+        mCamera.setPreviewCallback(null);
         mCamera.release();
         return true;
     }
@@ -123,6 +171,53 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
     }
 
     private void startPreview() {
+
+        startPreview_newway();
+    }
+
+    private void startPreview_newway() {
+//---------------testing this-----------
+        Log.d(TAG, "startPreview_newway() ");
+        mCamera = Camera.open();
+        Camera.Parameters parameters = mCamera.getParameters();
+
+        displayDegree = MyUtil.setCameraDisplayOrientation(0, mCamera, getWindowManager());
+        // 获取合适的分辨率
+        mSize = MyUtil.getOptimalSize(parameters.getSupportedPreviewSizes(), textureView.getWidth(), textureView.getHeight());
+        parameters.setPreviewSize(mSize.width, mSize.height);
+
+        parameters.setPreviewFormat(IMAGE_FORMAT);
+        mCamera.setParameters(parameters);
+
+        // try {
+        //    mCamera.setPreviewDisplay(holder);
+        //} catch (IOException ioe) {
+        //   ioe.printStackTrace();
+        //}
+
+        // 相机每一帧图像回调
+        mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] data, Camera camera) {
+                Log.d(TAG, "onPreviewFrame() callback");
+                mData = data;
+                camera.addCallbackBuffer(data);
+            }
+        });
+
+        try {
+            mCamera.setPreviewTexture(mSurfaceTexture);
+        } catch (IOException ioe) {
+            // Something bad happened
+            Log.e(TAG, "Exception starting preview", ioe);
+        }
+
+        mCamera.startPreview();
+
+    }
+
+    //---------------this working somehow-----------
+    private void startPreview_oldway() {
         mCamera = Camera.open();
         if (mCamera == null) {
             // Seeing this on Nexus 7 2012 -- I guess it wants a rear-facing camera, but
@@ -132,19 +227,21 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
 
         try {
             mCamera.setPreviewTexture(mSurfaceTexture);
-            Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+            Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
 
-            if(display.getRotation() == Surface.ROTATION_0) {
+            if (display.getRotation() == Surface.ROTATION_0) {
                 mCamera.setDisplayOrientation(90);
             }
-            if(display.getRotation() == Surface.ROTATION_270) {
+            if (display.getRotation() == Surface.ROTATION_270) {
                 mCamera.setDisplayOrientation(180);
+
             }
 
             mCamera.startPreview();
         } catch (IOException ioe) {
             // Something bad happened
-            Log.e(TAG,"Exception starting preview", ioe);
+            Log.e(TAG, "Exception starting preview", ioe);
         }
+
     }
 }
