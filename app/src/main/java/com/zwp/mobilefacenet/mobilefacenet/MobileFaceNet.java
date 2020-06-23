@@ -27,7 +27,7 @@ public class MobileFaceNet {
     }
 
     public float compare(Bitmap bitmap1, Bitmap bitmap2) {
-        // 将人脸resize为112X112大小的，因为下面需要feed数据的placeholder的形状是(2, 112, 112, 3)
+        // Resize the face to the size of 112X112, because the shape of the placeholder that needs feed data below is (2, 112, 112, 3)
         Bitmap bitmapScale1 = Bitmap.createScaledBitmap(bitmap1, INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, true);
         Bitmap bitmapScale2 = Bitmap.createScaledBitmap(bitmap2, INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, true);
 
@@ -39,7 +39,7 @@ public class MobileFaceNet {
     }
 
     /**
-     * 计算两张图片的相似度，使用l2损失
+     * Calculate the similarity of two pictures, using l2 loss
      * @param embeddings
      * @return
      */

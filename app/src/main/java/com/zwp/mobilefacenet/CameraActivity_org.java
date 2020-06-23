@@ -10,11 +10,9 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -33,7 +31,7 @@ import java.util.List;
  * 自定义相机，不要使用任何光线调节功能，否则活体检测无法通过。
  * 在你的实际项目中，可以手动拍照进行人脸识别，也可以自动取每一帧的图像进行人脸识别。
  */
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity_org extends AppCompatActivity {
     private static final int IMAGE_FORMAT = ImageFormat.NV21;
     private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK ;//Camera.CameraInfo.CAMERA_FACING_FRONT;
 

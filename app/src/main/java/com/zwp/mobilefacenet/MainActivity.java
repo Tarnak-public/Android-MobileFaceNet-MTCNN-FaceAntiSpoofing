@@ -25,6 +25,7 @@ import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String TAG = "";
     private MTCNN mtcnn; // 人脸检测
     private FaceAntiSpoofing fas; // 活体检测
     private MobileFaceNet mfn; // 人脸比对
@@ -48,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
         imageButton1 = findViewById(R.id.image_button1);
         imageButton2 = findViewById(R.id.image_button2);
-        imageViewCrop1 = findViewById(R.id.image_view_crop1);
-        imageViewCrop2 = findViewById(R.id.image_view_crop2);
+        imageViewCrop1 = findViewById(R.id.imageview_crop1);
+        imageViewCrop2 = findViewById(R.id.imageview_crop2);
         Button cropBtn = findViewById(R.id.crop_btn);
         Button deSpoofingBtn = findViewById(R.id.de_spoofing_btn);
         Button compareBtn = findViewById(R.id.compare_btn);
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 人脸检测并裁减
+     * Face detection and reduction
      */
     private void faceCrop() {
         if (bitmap1 == null || bitmap2 == null) {
@@ -97,19 +98,19 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmapTemp1 = bitmap1.copy(bitmap1.getConfig(), false);
         Bitmap bitmapTemp2 = bitmap2.copy(bitmap1.getConfig(), false);
 
-        // 检测出人脸数据
+        // Face data detect
         long start = System.currentTimeMillis();
         Vector<Box> boxes1 = mtcnn.detectFaces(bitmapTemp1, bitmapTemp1.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
         long end = System.currentTimeMillis();
         resultTextView.setText("Face detection time-consuming forward propagation:" + (end - start));
         resultTextView2.setText("");
-        Vector<Box> boxes2 = mtcnn.detectFaces(bitmapTemp2, bitmapTemp2.getWidth() / 5); // 只有这句代码检测人脸，下面都是根据Box在图片中裁减出人脸
+        Vector<Box> boxes2 = mtcnn.detectFaces(bitmapTemp2, bitmapTemp2.getWidth() / 5); // Only this code detects faces, the following are all cut out from the picture according to Box
         if (boxes1.size() == 0 || boxes2.size() == 0) {
             Toast.makeText(MainActivity.this, "No face detected", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // 这里因为使用的每张照片里只有一张人脸，所以取第一个值，用来剪裁人脸
+        // Because there is only one face in each photo used here, the first value is used to crop the face
         Box box1 = boxes1.get(0);
         Box box2 = boxes2.get(0);
         box1.toSquareShape();
@@ -202,19 +203,23 @@ public class MainActivity extends AppCompatActivity {
 
         compareMTCNN();
     }
+//https://medium.com/analytics-vidhya/facenet-on-modile-part-3-cc6f6d5752d6
 
     void compareMTCNN() {
         long start = System.currentTimeMillis();
-        float same = mfn.compare(bitmapCrop1, bitmapCrop2); // 就这一句有用代码，其他都是UI
+        float same = mfn.compare(bitmapCrop1, bitmapCrop2); //
         long end = System.currentTimeMillis();
 
-        Log.d("faceCompare()", "Face comparison result: "+same );
-        String text = "Face comparison results：" + same;
+        String shortedFloat = String.format("%.03f", same);
+        int percentageSame = (int) ((same) * 100);
+
+        Log.d("faceCompare()", "Face comparison result: [" + shortedFloat +  "] ["  + percentageSame + "%]");
+        String text = "Face comparison results took:[" + percentageSame + "%] for threshold:[" + MobileFaceNet.THRESHOLD + "] results:" ;
         if (same > MobileFaceNet.THRESHOLD) {
-            text = text + "，" + "True";
+            text = text + "[True]";
             resultTextView.setTextColor(getResources().getColor(android.R.color.holo_green_light));
         } else {
-            text = text + "，" + "False";
+            text = text + "[False]";
             resultTextView.setTextColor(getResources().getColor(android.R.color.holo_red_light));
         }
         text = text + "，time elapsed" + (end - start);
