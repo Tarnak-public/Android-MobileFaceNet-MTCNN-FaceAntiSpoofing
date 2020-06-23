@@ -14,4 +14,5 @@
     <string name="compare">compare</string>
     <string name="result">result</string>
     <string name="imageview_cropped_2">ImageView cropped 2</string>
+    <string name="first">first</string>
 </resources>
