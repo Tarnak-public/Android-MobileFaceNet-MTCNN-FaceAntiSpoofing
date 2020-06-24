@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.zwp.mobilefacenet.AIZOOTechfacemask.AIZOOTechFaceMask;
 import com.zwp.mobilefacenet.faceantispoofing.FaceAntiSpoofing;
 import com.zwp.mobilefacenet.mobilefacenet.MobileFaceNet;
 import com.zwp.mobilefacenet.mtcnn.Box;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private MTCNN mtcnn; // 人脸检测
     private FaceAntiSpoofing fas; // 活体检测
     private MobileFaceNet mfn; // 人脸比对
+    private AIZOOTechFaceMask aFaceMask; // 人脸比对
 
     public static Bitmap bitmap1;
     public static Bitmap bitmap2;
@@ -67,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         Button cropBtn = findViewById(R.id.crop_btn);
         Button deSpoofingBtn = findViewById(R.id.de_spoofing_btn);
         Button compareBtn = findViewById(R.id.compare_btn);
+        Button liveviewBtn = findViewById(R.id.liveview_btn);
+        Button facemask_btn = findViewById(R.id.facemask_btn);
         resultTextView = findViewById(R.id.result_text_view);
         resultTextView2 = findViewById(R.id.result_text_view2);
 
@@ -75,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
             mtcnn = new MTCNN(getAssets());
             fas = new FaceAntiSpoofing(getAssets());
             mfn = new MobileFaceNet(getAssets());
+            aFaceMask = new AIZOOTechFaceMask(getAssets());
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
