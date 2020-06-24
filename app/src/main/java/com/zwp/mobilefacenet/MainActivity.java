@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         resultTextView2 = findViewById(R.id.result_text_view2);
 
 
-
         try {
             mtcnn = new MTCNN(getAssets());
             fas = new FaceAntiSpoofing(getAssets());
@@ -120,12 +119,22 @@ public class MainActivity extends AppCompatActivity {
         //https://towardsdatascience.com/how-to-detect-mouth-open-for-face-login-84ca834dff3b
 
         //b) Detection of keypoints (left eye, right eye, nose, mouth_left, mouth_right)
-        long start = System.currentTimeMillis();
-        Vector<Box> boxes1 = mtcnn.detectFaces(bitmapTemp1, bitmapTemp1.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
-        long end = System.currentTimeMillis();
-        resultTextView.setText("Face detection time-consuming forward propagation:" + (end - start));
-        resultTextView2.setText("");
-        Vector<Box> boxes2 = mtcnn.detectFaces(bitmapTemp2, bitmapTemp2.getWidth() / 5); // Only this code detects faces, the following are all cut out from the picture according to Box
+        Vector<Box> boxes1 = new Vector<>(), boxes2 = new Vector<>();
+
+        try {
+            long start = System.currentTimeMillis();
+            boxes1 = mtcnn.detectFaces(bitmapTemp1, bitmapTemp1.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
+            long end = System.currentTimeMillis();
+            resultTextView.setText("Face detection time-consuming forward propagation:" + (end - start));
+            resultTextView2.setText("");
+            boxes2 = mtcnn.detectFaces(bitmapTemp2, bitmapTemp2.getWidth() / 5); // Only this code detects faces, the following are all cut out from the picture according to Box
+
+
+        } catch (IllegalArgumentException e) {
+            //e.printStackTrace();
+            Log.e(TAG,e.getMessage());
+        }
+
         if (boxes1.size() == 0 || boxes2.size() == 0) {
             Toast.makeText(MainActivity.this, "No face detected", Toast.LENGTH_LONG).show();
             return;
@@ -156,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         //mageViewCrop1.setVisibility(View.INVISIBLE);
         //((ImageView)findViewById(R.id.ImagCrop1Mask_imageView)).setImageBitmap(bitmapTemp1);
         imageViewCrop2.setImageBitmap(bitmapTemp2); //bitmapCrop2
-       //imageViewCrop1.refreshDrawableState();
+        //imageViewCrop1.refreshDrawableState();
 //        imageViewCrop2.invalidate();
     }
 
@@ -239,8 +248,8 @@ public class MainActivity extends AppCompatActivity {
         String shortedFloat = String.format("%.03f", same);
         int percentageSame = (int) ((same) * 100);
 
-        Log.d("faceCompare()", "Face comparison result: [" + shortedFloat +  "] ["  + percentageSame + "%]");
-        String text = "Face comparison result is:[" + percentageSame + "%] for threshold:[" + MobileFaceNet.THRESHOLD + "] is matched:" ;
+        Log.d("faceCompare()", "Face comparison result: [" + shortedFloat + "] [" + percentageSame + "%]");
+        String text = "Face comparison result is:[" + percentageSame + "%] for threshold:[" + MobileFaceNet.THRESHOLD + "] is matched:";
         if (same > MobileFaceNet.THRESHOLD) {
             text = text + "[True]";
             resultTextView.setTextColor(getResources().getColor(android.R.color.holo_green_light));

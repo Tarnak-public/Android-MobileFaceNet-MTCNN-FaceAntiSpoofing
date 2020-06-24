@@ -18,4 +18,7 @@
     <string name="live_view">Live View</string>
     <string name="de_spoof">de_spoof</string>
     <string name="image_view">image view</string>
+    <string name="facemask">FACEMASK</string>
+    <string name="image_button">Image button</string>
+
 </resources>
