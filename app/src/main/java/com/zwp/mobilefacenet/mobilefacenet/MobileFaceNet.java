@@ -15,8 +15,8 @@ import java.io.IOException;
 public class MobileFaceNet {
     private static final String MODEL_FILE = "MobileFaceNet.tflite";
 
-    public static final int INPUT_IMAGE_SIZE = 112; // 需要feed数据的placeholder的图片宽高
-    public static final float THRESHOLD = 0.8f; // 设置一个阙值，大于这个值认为是同一个人
+    public static final int INPUT_IMAGE_SIZE = 112; // The width and height of the placeholder image that needs feed data
+    public static final float THRESHOLD = 0.8f; // Set a threshold, greater than this value is considered the same person
 
     private Interpreter interpreter;
 
@@ -61,7 +61,7 @@ public class MobileFaceNet {
     }
 
     /**
-     * 转换两张图片为归一化后的数据
+     * Convert two pictures to normalized data
      * @param bitmap1
      * @param bitmap2
      * @return

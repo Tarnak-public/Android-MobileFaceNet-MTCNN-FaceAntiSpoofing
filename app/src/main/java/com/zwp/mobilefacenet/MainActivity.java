@@ -20,6 +20,7 @@ import com.zwp.mobilefacenet.faceantispoofing.FaceAntiSpoofing;
 import com.zwp.mobilefacenet.mobilefacenet.MobileFaceNet;
 import com.zwp.mobilefacenet.mtcnn.Box;
 import com.zwp.mobilefacenet.mtcnn.MTCNN;
+import com.zwp.mobilefacenet.mtcnn.Utils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -109,10 +110,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Bitmap bitmapTemp1 = bitmap1.copy(bitmap1.getConfig(), false);
-        Bitmap bitmapTemp2 = bitmap2.copy(bitmap1.getConfig(), false);
+        Bitmap bitmapTemp1 = bitmap1.copy(bitmap1.getConfig(), true);
+        Bitmap bitmapTemp2 = bitmap2.copy(bitmap1.getConfig(), true);
 
+        //https://towardsdatascience.com/mtcnn-face-detection-cdcb20448ce0
+        //landmarks
         // Face data detect
+        //https://towardsdatascience.com/face-detection-using-mtcnn-a-guide-for-face-extraction-with-a-focus-on-speed-c6d59f82d49
+        //https://towardsdatascience.com/how-to-detect-mouth-open-for-face-login-84ca834dff3b
+
+        //b) Detection of keypoints (left eye, right eye, nose, mouth_left, mouth_right)
         long start = System.currentTimeMillis();
         Vector<Box> boxes1 = mtcnn.detectFaces(bitmapTemp1, bitmapTemp1.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
         long end = System.currentTimeMillis();
@@ -134,18 +141,23 @@ public class MainActivity extends AppCompatActivity {
         Rect rect1 = box1.transform2Rect();
         Rect rect2 = box2.transform2Rect();
 
-        // 剪裁人脸
+        //Cut face
         bitmapCrop1 = MyUtil.crop(bitmapTemp1, rect1);
         bitmapCrop2 = MyUtil.crop(bitmapTemp2, rect2);
 
-        // 绘制人脸框和五点
-//        Utils.drawBox(bitmapTemp1, box1, 10);
-//        Utils.drawBox(bitmapTemp2, box2, 10);
+        // Draw face frame and five points
+        Utils.drawBox(bitmapTemp1, box1, 10);
+        Utils.drawBox(bitmapTemp2, box2, 10);
 
 //        bitmapCrop1 = MyUtil.readFromAssets(this, "42.png");
 //        bitmapCrop2 = MyUtil.readFromAssets(this, "52.png");
-        imageViewCrop1.setImageBitmap(bitmapCrop1);
-        imageViewCrop2.setImageBitmap(bitmapCrop2);
+        imageViewCrop1.setImageBitmap(bitmapTemp1); //bitmapCrop1
+
+        //mageViewCrop1.setVisibility(View.INVISIBLE);
+        //((ImageView)findViewById(R.id.ImagCrop1Mask_imageView)).setImageBitmap(bitmapTemp1);
+        imageViewCrop2.setImageBitmap(bitmapTemp2); //bitmapCrop2
+       //imageViewCrop1.refreshDrawableState();
+//        imageViewCrop2.invalidate();
     }
 
     /**

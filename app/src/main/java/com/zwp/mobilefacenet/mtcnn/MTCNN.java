@@ -40,9 +40,9 @@ public class MTCNN {
     }
 
     /**
-     * 人脸检测
-     * @param bitmap 要处理的图片
-     * @param minFaceSize 最小的人脸像素值. (此值越大，检测越快)
+     *Face Detection
+     * @param bitmap Image to be processed
+     * @param minFaceSize The smallest face pixel value. (The larger the value, the faster the detection)
      */
     public Vector<Box> detectFaces(Bitmap bitmap, int minFaceSize) {
         Vector<Box> boxes;
@@ -73,7 +73,7 @@ public class MTCNN {
     }
 
     /**
-     * NMS执行完后，才执行Regression
+     * After the NMS is executed, the Regression is executed
      * (1) For each scale , use NMS with threshold=0.5
      * (2) For all candidates , use NMS with threshold=0.7
      * (3) Calibrate Bounding Box
@@ -130,7 +130,7 @@ public class MTCNN {
     }
 
     /**
-     * pnet前向传播
+     * pnet forward propagation
      *
      * @param bitmap
      * @param prob1
@@ -180,7 +180,7 @@ public class MTCNN {
     }
 
     /**
-     * nms，不符合条件的deleted设置为true
+     * nms, deletes that do not meet the conditions are set to true
      *
      * @param boxes
      * @param threshold
@@ -257,7 +257,7 @@ public class MTCNN {
     }
 
     /**
-     * RNET跑神经网络，将score和bias写入boxes
+     * RNET runs a neural network and writes scores and biases to boxes
      * @param rNetIn
      * @param boxes
      */
@@ -311,7 +311,7 @@ public class MTCNN {
     }
 
     /**
-     * ONet跑神经网络，将score和bias写入boxes
+     * ONet runs a neural network and writes score and bias into boxes
      * @param oNetIn
      * @param boxes
      */
@@ -345,7 +345,7 @@ public class MTCNN {
     }
 
     /**
-     * 删除做了delete标记的box
+     * Delete the marked box
      * @param boxes
      * @return
      */

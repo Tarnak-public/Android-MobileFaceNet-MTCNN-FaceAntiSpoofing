@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,7 +19,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="10dp"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:contentDescription="Image button" />
 
         <ImageButton
             android:id="@+id/image_button2"
@@ -26,7 +28,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="10dp"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:contentDescription="Image button" />
     </LinearLayout>
 
     <LinearLayout
@@ -40,7 +43,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:contentDescription="@string/image_view" />
 
         <ImageView
             android:id="@+id/imageview_crop2"
@@ -52,34 +56,43 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal">
 
         <Button
             android:id="@+id/crop_btn"
-            android:layout_width="100dp"
-            android:layout_height="48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:text="@string/crop" />
 
         <Button
             android:id="@+id/de_spoofing_btn"
-            android:layout_width="100dp"
-            android:layout_height="48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:text="@string/de_spoofing" />
+            android:layout_margin="5dp"
+            android:text="@string/de_spoof" />
 
         <Button
             android:id="@+id/compare_btn"
-            android:layout_width="100dp"
-            android:layout_height="48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:text="@string/compare" />
+
+        <Button
+            android:id="@+id/liveview_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+
+            android:text="@string/live_view" />
     </LinearLayout>
 
 

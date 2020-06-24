@@ -15,4 +15,7 @@
     <string name="result">result</string>
     <string name="imageview_cropped_2">ImageView cropped 2</string>
     <string name="first">first</string>
+    <string name="live_view">Live View</string>
+    <string name="de_spoof">de_spoof</string>
+    <string name="image_view">image view</string>
 </resources>
