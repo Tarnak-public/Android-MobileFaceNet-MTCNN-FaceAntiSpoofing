@@ -1,5 +1,6 @@
 package com.zwp.mobilefacenet;
 //https://towardsdatascience.com/how-to-detect-mouth-open-for-face-login-84ca834dff3b
+//https://medium.com/@luca_anzalone/setting-up-dlib-and-opencv-for-android-3efdbfcf9e7f
 
 import com.zwp.mobilefacenet.mtcnn.MTCNN;
 
