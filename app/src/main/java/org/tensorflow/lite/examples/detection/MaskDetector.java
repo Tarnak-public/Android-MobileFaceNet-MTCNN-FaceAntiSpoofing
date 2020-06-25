@@ -424,7 +424,7 @@ public class MaskDetector {
 
     }
 
-
+/*
 
     //got detected faces
     void onFacesDetected_org(long currTimestamp, Bitmap croppedFaceWithBitmap) {
@@ -467,10 +467,7 @@ public class MaskDetector {
 
         boolean saved = false;
 
-        /*
-         here we should iterate through faces
-             for (Face face : faces) {
-         */
+
         {
             LOGGER.d("Running detection on face " + currTimestamp);
 
@@ -557,6 +554,6 @@ public class MaskDetector {
         updateResults(currTimestamp, mappedRecognitions);
 
     }
-
+*/
 
 }
