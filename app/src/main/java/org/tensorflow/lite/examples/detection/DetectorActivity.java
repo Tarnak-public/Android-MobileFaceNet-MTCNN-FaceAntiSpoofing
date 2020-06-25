@@ -431,6 +431,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       final RectF boundingBox = new RectF();
 
       //TODO
+      //Rect getBoundingBox()
+      //Returns the axis-aligned bounding rectangle of the detected face.
       //final RectF boundingBox = new RectF(face.getBoundingBox());
 
       //final boolean goodConfidence = result.getConfidence() >= minimumConfidence;
