@@ -343,6 +343,12 @@ public class MaskDetector {
                 RectF faceBB = new RectF(boundingBox);
                 transform.mapRect(faceBB);
 
+                //cvFace contains faceBmp!!
+                portraitBmp = croppedFaceWithBitmap;
+
+
+                // CROP portraitBmp (seems to be final face image) to CVFace(faceBmp), so you got correct size final bitmap which goes to compare
+
                 // translates portrait to origin and scales to fit input inference size
                 //cv.drawRect(faceBB, paint);
                 float sx = ((float) TF_OD_API_INPUT_SIZE) / faceBB.width();
@@ -357,6 +363,9 @@ public class MaskDetector {
                 Integer color = Color.BLUE;
 
                 final long startTime = SystemClock.uptimeMillis();
+
+                ///faceBmp = croppedFaceWithBitmap;
+
                 final List<Classifier.Recognition> resultsAux = detector.recognizeImage(faceBmp);
                 lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
