@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
                     if ((maskDetector = new MaskDetector()) != null) {
                         size = new Size(bitmapCrop1.getWidth(), bitmapCrop1.getHeight());
 
+                        //for portrait mode:
+                        // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
                         if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
                             maskDetector.processImage(bitmapCrop1);
                         } else

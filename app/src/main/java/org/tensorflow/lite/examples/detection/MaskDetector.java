@@ -104,6 +104,18 @@ public class MaskDetector {
         TF_OD_API;
     }
 
+
+
+    /*
+    normalnie demo na telefonie takie cos generuje
+
+    2020-06-25 21:56:51.090 10812-10812/? W/tensorflow: TFLiteObjectDetectionAPIModel: mask
+2020-06-25 21:56:51.091 10812-10812/? W/tensorflow: TFLiteObjectDetectionAPIModel: no-mask
+2020-06-25 21:56:51.094 10812-10812/? I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
+2020-06-25 21:56:51.094 10812-10812/? I/tensorflow: DetectorActivity: Initializing at size 880x720
+2020-06-25 21:56:51.095 10812-10812/? I/tensorflow: DetectorActivity: Preparing image 1 for detection in bg thread.
+
+     */
     /*
         mcontext            use this or GetContgext()
         assetmanager        use getAssets()
@@ -140,15 +152,16 @@ public class MaskDetector {
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
         sensorOrientation = rotation - getSensorOrientation;
-        LOGGER.i("Camera orientation relative to screen canvas: %d", sensorOrientation);
+        LOGGER.d("Camera orientation relative to screen canvas:  sensorOrientation(%d) = rotation(%d) - getSensorOrientation(%d)", sensorOrientation,rotation,getSensorOrientation);
 
-        LOGGER.i("Initializing at size %dx%d", previewWidth, previewHeight);
+        LOGGER.d("Initializing at size %dx%d", previewWidth, previewHeight);
         rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Bitmap.Config.ARGB_8888);
 
         int targetW, targetH;
         if (sensorOrientation == 90 || sensorOrientation == 270) {
             targetH = previewWidth;
             targetW = previewHeight;
+            LOGGER.d("Changed  image parameters *** Width = Height and Height = Width ***", previewWidth, previewHeight);
         } else {
             targetW = previewWidth;
             targetH = previewHeight;
@@ -188,7 +201,7 @@ public class MaskDetector {
         final long currTimestamp = timestamp;
 
         computingDetection = true;
-        LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
+        LOGGER.d("Preparing image " + currTimestamp + " for detection in bg thread.");
 
         final Canvas canvas = new Canvas(croppedBitmap);
         canvas.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
@@ -231,7 +244,7 @@ public class MaskDetector {
         Matrix matrix = new Matrix();
         if (applyRotation != 0) {
             if (applyRotation % 90 != 0) {
-                LOGGER.w("Rotation of %d % 90 != 0", applyRotation);
+                LOGGER.d("Rotation of %d % 90 != 0", applyRotation);
             }
 
             // Translate so center of image is at origin.
@@ -308,12 +321,13 @@ public class MaskDetector {
 
         boolean saved = false;
 
+
         /*
          here we should iterate through faces
              for (Face face : faces) {
          */
         {
-            LOGGER.i("Running detection on face " + currTimestamp);
+            LOGGER.d("Running detection on face " + currTimestamp);
 
 
             //results = detector.recognizeImage(croppedBitmap);
@@ -362,7 +376,7 @@ public class MaskDetector {
                         }
                     }
 
-                    Log.v("onFacesDetected()", "Result is " + label );
+                    Log.d("onFacesDetected()", "Result is " + label );
                 }
                 if (cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 
@@ -382,6 +396,140 @@ public class MaskDetector {
                 final Classifier.Recognition result = new Classifier.Recognition(
                         "0", label, confidence, boundingBox);
 
+                result.setColor(color);
+                result.setLocation(boundingBox);
+                mappedRecognitions.add(result);
+            }
+
+
+        }//endfor ;)
+
+        if (saved) {
+            //lastSaved = System.currentTimeMillis();
+        }
+        updateResults(currTimestamp, mappedRecognitions);
+
+    }
+
+
+
+    //got detected faces
+    void onFacesDetected_org(long currTimestamp, Bitmap croppedFaceWithBitmap) {
+        cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
+        final Canvas canvas = new Canvas(cropCopyBitmap);
+        final Paint paint = new Paint();
+
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(2.0f);
+
+        float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+        switch (MODE) {
+            case TF_OD_API:
+                minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+                break;
+        }
+
+        final List<Classifier.Recognition> mappedRecognitions =
+                new LinkedList<Classifier.Recognition>();
+        //final List<Classifier.Recognition> results = new ArrayList<>();
+
+        // Note this can be done only once
+        int sourceW = rgbFrameBitmap.getWidth();
+        int sourceH = rgbFrameBitmap.getHeight();
+        int targetW = portraitBmp.getWidth();
+        int targetH = portraitBmp.getHeight();
+        Matrix transform = createTransform(
+                sourceW,
+                sourceH,
+                targetW,
+                targetH,
+                sensorOrientation);
+        final Canvas cv = new Canvas(portraitBmp);
+
+        // draws the original image in portrait mode.
+        cv.drawBitmap(rgbFrameBitmap, transform, null);
+
+        final Canvas cvFace = new Canvas(faceBmp);
+
+        boolean saved = false;
+
+        /*
+         here we should iterate through faces
+             for (Face face : faces) {
+         */
+        {
+            LOGGER.d("Running detection on face " + currTimestamp);
+
+
+            //results = detector.recognizeImage(croppedBitmap);
+            final RectF boundingBox = new RectF(0, 0, croppedFaceWithBitmap.getWidth(), croppedFaceWithBitmap.getHeight());
+            //croppedFaceWithBitmap
+            final boolean goodConfidence = true;
+            if (boundingBox != null && goodConfidence) {
+
+                // maps crop coordinates to original
+                cropToFrameTransform.mapRect(boundingBox);
+
+                // maps original coordinates to portrait coordinates
+                RectF faceBB = new RectF(boundingBox);
+                transform.mapRect(faceBB);
+
+                // translates portrait to origin and scales to fit input inference size
+                //cv.drawRect(faceBB, paint);
+                float sx = ((float) TF_OD_API_INPUT_SIZE) / faceBB.width();
+                float sy = ((float) TF_OD_API_INPUT_SIZE) / faceBB.height();
+                Matrix matrix = new Matrix();
+                matrix.postTranslate(-faceBB.left, -faceBB.top);
+                matrix.postScale(sx, sy);
+                cvFace.drawBitmap(portraitBmp, matrix, null);
+
+                String label = "";
+                float confidence = -1f;
+                Integer color = Color.BLUE;
+
+                final long startTime = SystemClock.uptimeMillis();
+                final List<Classifier.Recognition> resultsAux = detector.recognizeImage(faceBmp);
+                lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
+
+                if (resultsAux.size() > 0) {
+
+                    Classifier.Recognition result = resultsAux.get(0);
+
+                    float conf = result.getConfidence();
+                    if (conf >= CONFIDENCE_LEVEL_TRESHOLD ) {
+
+                        confidence = conf;
+                        label = result.getTitle();
+                        if (result.getId().equals("0")) {
+                            color = Color.GREEN;
+                        } else {
+                            color = Color.RED;
+                        }
+                    }
+
+                    Log.d("onFacesDetected()", "conf level:[" + conf +"] .Result is " + label );
+                }
+                if (cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+
+                    Log.d("onFacesDetected()", "Flipping image because is Frontal camera" );
+                    // camera is frontal so the image is flipped horizontally
+                    // flips horizontally
+                    Matrix flip = new Matrix();
+                    if (sensorOrientation == 90 || sensorOrientation == 270) {
+                        flip.postScale(1, -1, previewWidth / 2.0f, previewHeight / 2.0f);
+                    } else {
+                        flip.postScale(-1, 1, previewWidth / 2.0f, previewHeight / 2.0f);
+                    }
+                    //flip.postScale(1, -1, targetW / 2.0f, targetH / 2.0f);
+                    flip.mapRect(boundingBox);
+
+                }
+
+                final Classifier.Recognition result = new Classifier.Recognition(
+                        "0", label, confidence, boundingBox);
+
+                Log.d("onFacesDetected()", "classifier recognition():" + result.toString() );
                 result.setColor(color);
                 result.setLocation(boundingBox);
                 mappedRecognitions.add(result);
