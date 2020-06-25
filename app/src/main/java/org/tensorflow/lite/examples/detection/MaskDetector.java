@@ -358,6 +358,10 @@ public class MaskDetector {
                 matrix.postScale(sx, sy);
                 cvFace.drawBitmap(portraitBmp, matrix, null);
 
+                if (true) { //SAVE_PREVIEW_BITMAP
+                    ImageUtils.saveBitmap(faceBmp,"facebmp_after_matrix_line362");
+                }
+
                 String label = "";
                 float confidence = -1f;
                 Integer color = Color.BLUE;
