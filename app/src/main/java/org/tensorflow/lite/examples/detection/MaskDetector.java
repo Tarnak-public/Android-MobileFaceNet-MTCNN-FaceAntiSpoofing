@@ -376,9 +376,11 @@ public class MaskDetector {
                         }
                     }
 
-                    Log.d("onFacesDetected()", "Result is " + label );
+                    Log.d("onFacesDetected()", "conf level:[" + conf +"] .Result is " + label );
                 }
                 if (cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+
+                    Log.d("onFacesDetected()", "Flipping image because is Frontal camera" );
 
                     // camera is frontal so the image is flipped horizontally
                     // flips horizontally
@@ -395,6 +397,8 @@ public class MaskDetector {
 
                 final Classifier.Recognition result = new Classifier.Recognition(
                         "0", label, confidence, boundingBox);
+
+                Log.d("onFacesDetected()", "classifier recognition():" + result.toString() );
 
                 result.setColor(color);
                 result.setLocation(boundingBox);
