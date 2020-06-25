@@ -54,7 +54,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
     private static final String TAG = "LiveCameraTViewActivity";
 
     private static final int IMAGE_FORMAT = ImageFormat.NV21;
-    private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;//Camera.CameraInfo.CAMERA_FACING_FRONT;
 
     private Camera mCamera;
     private SurfaceTexture mSurfaceTexture;
@@ -176,7 +176,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         bitmap = textureView.getBitmap();
         end = System.currentTimeMillis();
         //Log.d(TAG, "onSurfaceTextureUpdated() " + surface.getTimestamp());
-        Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
+ //       Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
     }
 
@@ -202,7 +202,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
     private void startPreview_newway() {
 //---------------testing this-----------
         Log.d(TAG, "startPreview_newway() ");
-        mCamera = Camera.open();
+        mCamera = Camera.open(CAMERA_ID);
         Camera.Parameters parameters = mCamera.getParameters();
 
         displayDegree = MyUtil.setCameraDisplayOrientation(0, mCamera, getWindowManager());
@@ -223,7 +223,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         mCamera.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
-                Log.d(TAG, "onPreviewFrame() callback");
+                //Log.d(TAG, "onPreviewFrame() callback");
                 mData = data;
                 camera.addCallbackBuffer(data);
             }

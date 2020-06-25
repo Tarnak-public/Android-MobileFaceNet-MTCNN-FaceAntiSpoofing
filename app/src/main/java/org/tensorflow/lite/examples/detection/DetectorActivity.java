@@ -69,16 +69,9 @@ import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
  * objects.
  */
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-public class DetectorActivity extends CameraActivity implements OnImageAvailableListener {
+public class DetectorActivity extends org.tensorflow.lite.examples.detection.CameraActivity implements OnImageAvailableListener {
   private static final Logger LOGGER = new Logger();
 
-  // Configuration values for the prepackaged SSD model.
-  //private static final int TF_OD_API_INPUT_SIZE = 300;
-  //private static final boolean TF_OD_API_IS_QUANTIZED = true;
-  //private static final String TF_OD_API_MODEL_FILE = "detect.tflite";
-  //private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
-
-  //private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
 
   // Face Mask
   private static final int TF_OD_API_INPUT_SIZE = 224;
@@ -421,9 +414,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     boolean saved = false;
 
-    for (Face face : faces) {
+//    for (Face face : faces)
+    {
 
-      LOGGER.i("FACE" + face.toString());
+  //    LOGGER.i("FACE" + face.toString());
 
       LOGGER.i("Running detection on face " + currTimestamp);
 
@@ -511,7 +505,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       }
 
 
-    }
+    }//endor
 
     //    if (saved) {
 //      lastSaved = System.currentTimeMillis();

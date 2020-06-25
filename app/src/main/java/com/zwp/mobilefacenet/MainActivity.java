@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Size;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -22,6 +23,8 @@ import com.zwp.mobilefacenet.mobilefacenet.MobileFaceNet;
 import com.zwp.mobilefacenet.mtcnn.Box;
 import com.zwp.mobilefacenet.mtcnn.MTCNN;
 import com.zwp.mobilefacenet.mtcnn.Utils;
+
+import org.tensorflow.lite.examples.detection.MaskDetector;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -105,6 +108,40 @@ public class MainActivity extends AppCompatActivity {
                 faceCompare();
             }
         });
+        liveviewBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //faceCompare();
+            }
+        });
+        facemask_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String errorString = "";
+                boolean gotError = false;
+                MaskDetector maskDetector;
+                Size size;
+                if (bitmapCrop1 != null) {
+                    //try actions on this bitmap
+                    if ((maskDetector = new MaskDetector()) != null) {
+                        size = new Size(bitmapCrop1.getWidth(), bitmapCrop1.getHeight());
+
+                        if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
+                            maskDetector.processImage(bitmapCrop1);
+                        } else
+                            errorString = "InitMaskDetector failed";
+
+                    } else
+                        errorString = "init MaskDetector failed somehow";
+                } else
+                    errorString = "No cropped bitmap in slot 1";
+
+
+                if (gotError) {
+                    Toast.makeText(MainActivity.appContext, errorString, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     /**
@@ -127,6 +164,8 @@ public class MainActivity extends AppCompatActivity {
 
         //b) Detection of keypoints (left eye, right eye, nose, mouth_left, mouth_right)
         Vector<Box> boxes1 = new Vector<>(), boxes2 = new Vector<>();
+        String errorString = "";
+        boolean error = false;
 
         try {
             long start = System.currentTimeMillis();
@@ -136,10 +175,23 @@ public class MainActivity extends AppCompatActivity {
             resultTextView2.setText("");
             boxes2 = mtcnn.detectFaces(bitmapTemp2, bitmapTemp2.getWidth() / 5); // Only this code detects faces, the following are all cut out from the picture according to Box
 
+/*
+            if(boxes1.isEmpty()  == true) {
+                errorString += "No face detected on Image 1 . ";
+                error = true;
+            }
+            if(boxes2.isEmpty()  == true) {
+                errorString += "No face detected on Image 2 . ";
+                error = true;
+            }
+
+            if(error == true)
+                Toast.makeText(MainActivity.this, errorString, Toast.LENGTH_LONG).show();
+*/
 
         } catch (IllegalArgumentException e) {
             //e.printStackTrace();
-            Log.e(TAG,e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
 
         if (boxes1.size() == 0 || boxes2.size() == 0) {
