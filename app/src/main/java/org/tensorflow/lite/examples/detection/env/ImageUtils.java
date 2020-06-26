@@ -15,11 +15,20 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.detection.env;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Environment;
+import android.util.Log;
+
+import com.zwp.mobilefacenet.MainActivity;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /** Utility class for manipulating images. */
 public class ImageUtils {
@@ -61,11 +70,42 @@ public class ImageUtils {
    * @param filename The location to save the bitmap to.
    */
   public static void saveBitmap(final Bitmap bitmap, final String filename) {
-    final String root =
-        Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "tensorflow";
+    final String root;
+/*
+           //get the path to sdcard
+//          File pathToExternalStorage = Environment.getExternalStorageDirectory();
+          File pathToExternalStorage = Environment.get();
+          //to this path add a new directory path and create new App dir (InstroList) in /documents Dir
+          File appDirectory = new File(pathToExternalStorage.getAbsolutePath()  + "/tensorflow2");
+          // have the object build the directory structure, if needed.
+          appDirectory.mkdirs();
+
+    try {
+      Log.d("saveBitmap()", appDirectory.getCanonicalPath());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+*/
+//this generates file here /data/data/com.zwp.mobilefacenet/app_imageDir
+    ContextWrapper cw = new ContextWrapper(MainActivity.appContext);
+    File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+//  File file = new File(directory, "UniqueFileName" + ".jpg");
+    //final File myDir = new File(String.valueOf(directory));
+    final File myDir = directory;
+
+    //writeToFile("data saved", MainActivity.appContext);
+
+    try {
+      Log.d("saveBitmap() abs path mydir ", myDir.getAbsolutePath());
+      Log.d("saveBitmap() abs path directory", directory.getCanonicalPath());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    /*
+    root =     Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "tensorflow";
     LOGGER.i("Saving %dx%d bitmap to %s.", bitmap.getWidth(), bitmap.getHeight(), root);
     final File myDir = new File(root);
-
+*/
     if (!myDir.mkdirs()) {
       LOGGER.i("Make dir failed");
     }
@@ -76,12 +116,28 @@ public class ImageUtils {
       file.delete();
     }
     try {
-      final FileOutputStream out = new FileOutputStream(file);
+      final FileOutputStream out = new FileOutputStream(file + ".png");
       bitmap.compress(Bitmap.CompressFormat.PNG, 99, out);
       out.flush();
       out.close();
     } catch (final Exception e) {
       LOGGER.e(e, "Exception!");
+    }
+  }
+
+  //this saves here
+// /data/data/com.zwp.mobilefacenet/files
+  private static void writeToFile(String data,Context context) {
+    try {
+      FileOutputStream outputStreamWriter = new FileOutputStream(new File(context.getFilesDir(), "myFile.xml"));
+      //OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+      //OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+      LOGGER.i("Saved to:", outputStreamWriter.toString());
+      outputStreamWriter.write((data.getBytes()));
+      outputStreamWriter.close();
+    }
+    catch (IOException e) {
+      Log.e("Exception", "File write failed: " + e.toString());
     }
   }
 

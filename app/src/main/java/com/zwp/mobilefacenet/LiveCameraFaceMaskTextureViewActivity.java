@@ -21,45 +21,52 @@ package com.zwp.mobilefacenet;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
-//import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import java.io.IOException;
+import com.zwp.mobilefacenet.mtcnn.Box;
 
-import static android.view.SurfaceHolder.*;
+import org.tensorflow.lite.examples.detection.MaskDetector;
+
+import java.io.IOException;
+import java.util.Vector;
+
+//import android.support.annotation.NonNull;
 
 /**
  * More or less straight out of TextureView's doc.
  * <p>
  * TODO: add options for different display sizes, frame rates, camera selection, etc.
  */
-public class LiveCameraTextureViewActivity extends Activity implements TextureView.SurfaceTextureListener {
+public class LiveCameraFaceMaskTextureViewActivity extends Activity implements TextureView.SurfaceTextureListener {
     private static final String TAG = "LiveCameraTViewActivity";
 
+
     private SurfaceTexture mSurfaceTexture;
+    private TextView statusTextView;
     TextureView textureView;
     private int displayDegree;
     private byte[] mData;
     private Camera.Size mSize;
     Bitmap bitmap;
-
+    Bitmap bitmapCroppedFace;
     long start = System.currentTimeMillis();
     long end = System.currentTimeMillis();
 //    Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
@@ -72,11 +79,13 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_live_camera_texture_view);
-        textureView = ((TextureView) findViewById(R.id.LiveCameraTextureViewActivity));
+        setContentView(R.layout.activity_live_camera_textureview_facemask);
+        textureView = ((TextureView) findViewById(R.id.LiveCameraFacemaskTextureViewActivity));
+        statusTextView = ((TextView) findViewById(R.id.FaceMaskStatus_textView));
         textureView.setSurfaceTextureListener(this);
         applyMirroringOnCamera(textureView);
 
+/*
         Button button = findViewById(R.id.TakePictureButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +118,11 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
                 finish();
             }
         });
+        */
+
     }
+
+
 
     /*
        Fix for back camera treated as front and do Mirroring
@@ -174,6 +187,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         //Log.d(TAG, "onSurfaceTextureUpdated() " + surface.getTimestamp());
  //       Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
+        RunLiveFaceDetect();
     }
 
 
@@ -195,6 +209,62 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         startPreview_newway();
     }
 
+
+
+
+    public void RunLiveFaceDetect() {
+        String errorString = "";
+        boolean gotError = false;
+        MaskDetector maskDetector;
+        Size size;
+        if (bitmap != null) {
+            //try actions on this bitmap
+            if ((maskDetector = new MaskDetector()) != null) {
+                //original is this:
+                //bitmapCrop1ForFaceMask = bitmapCrop1;
+
+                //check face
+                Vector<Box> boxes1 = new Vector<>();
+
+                //tricked resized image for width and height
+                ((ImageView)findViewById(R.id.FaceImageView)).setImageBitmap(bitmapCroppedFace);
+
+                size = new Size(bitmapCroppedFace.getWidth(), bitmapCroppedFace.getHeight());
+
+                //for portrait mode:
+                // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
+                if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
+                    maskDetector.processImage(bitmapCroppedFace, statusTextView);
+                } else
+                    errorString = "InitMaskDetector failed";
+
+            } else
+                errorString = "init MaskDetector failed somehow";
+        } else
+            errorString = "No cropped bitmap in slot 1";
+
+
+        if (gotError) {
+            Toast.makeText(MainActivity.appContext, errorString, Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
+
+
+
+
+
+  /*
+  *
+  *
+  *
+  * */
+
+
+
+
     private void startPreview_newway() {
 //---------------testing this-----------
         Log.d(TAG, "startPreview_newway() ");
@@ -202,7 +272,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         Camera.Parameters parameters = MainActivity.mCamera.getParameters();
 
         displayDegree = MyUtil.setCameraDisplayOrientation(0, MainActivity.mCamera, getWindowManager());
-        // 获取合适的分辨率
+        // Get the right resolution
         mSize = MyUtil.getOptimalSize(parameters.getSupportedPreviewSizes(), textureView.getWidth(), textureView.getHeight());
         parameters.setPreviewSize(mSize.width, mSize.height);
 
@@ -215,7 +285,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         //   ioe.printStackTrace();
         //}
 
-        // 相机每一帧图像回调
+        // Camera callback for every frame
         MainActivity.mCamera.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
@@ -238,7 +308,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
 
     //---------------this working somehow-----------
     private void startPreview_oldway() {
-        MainActivity.mCamera = Camera.open();
+        MainActivity. mCamera = Camera.open();
         if (MainActivity.mCamera == null) {
             // Seeing this on Nexus 7 2012 -- I guess it wants a rear-facing camera, but
             // there isn't one.  TODO: fix

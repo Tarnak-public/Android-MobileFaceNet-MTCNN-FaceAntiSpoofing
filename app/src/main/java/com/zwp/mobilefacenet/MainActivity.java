@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
+import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
@@ -23,6 +25,7 @@ import com.zwp.mobilefacenet.mobilefacenet.MobileFaceNet;
 import com.zwp.mobilefacenet.mtcnn.Box;
 import com.zwp.mobilefacenet.mtcnn.MTCNN;
 import com.zwp.mobilefacenet.mtcnn.Utils;
+import com.zwp.mobilefacenet.PermissionHelper;
 
 import org.tensorflow.lite.examples.detection.MaskDetector;
 
@@ -31,17 +34,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import static com.zwp.mobilefacenet.PermissionHelper.launchPermissionSettings;
+import static com.zwp.mobilefacenet.PermissionHelper.requestWriteStoragePermission;
+
 public class MainActivity extends AppCompatActivity {
 
+    public static final int IMAGE_FORMAT = ImageFormat.NV21;
+    public static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//Camera.CameraInfo.CAMERA_FACING_FRONT;
+    public static Camera mCamera;
+
     public static final String TAG = "";
-    private MTCNN mtcnn; // 人脸检测
-    private FaceAntiSpoofing fas; // 活体检测
-    private MobileFaceNet mfn; // 人脸比对
-    private AIZOOTechFaceMask aFaceMask; // 人脸比对
+    private MTCNN mtcnn; // Face Detection
+    private FaceAntiSpoofing fas; // Biopsy
+    private MobileFaceNet mfn; // Face comparison
+    private AIZOOTechFaceMask aFaceMask; // zoo model
 
     public static Bitmap bitmap1;
     public static Bitmap bitmap2;
     private Bitmap bitmapCrop1;
+    private Bitmap bitmapCrop1ForFaceMask;
     private Bitmap bitmapCrop2;
 
     private ImageButton imageButton1;
@@ -77,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
         resultTextView = findViewById(R.id.result_text_view);
         resultTextView2 = findViewById(R.id.result_text_view2);
 
+
+        requestWriteStoragePermission(this);
+        //requestCameraPermission();
+        //launchPermissionSettings(this);
 
         try {
             mtcnn = new MTCNN(getAssets());
@@ -124,12 +139,18 @@ public class MainActivity extends AppCompatActivity {
                 if (bitmapCrop1 != null) {
                     //try actions on this bitmap
                     if ((maskDetector = new MaskDetector()) != null) {
-                        size = new Size(bitmapCrop1.getWidth(), bitmapCrop1.getHeight());
+                        //original is this:
+                        //bitmapCrop1ForFaceMask = bitmapCrop1;
+
+                        //tricked resized image for width and height
+                        ((ImageView)findViewById(R.id.imageview_crop2)).setImageBitmap(bitmapCrop1ForFaceMask);
+
+                        size = new Size(bitmapCrop1ForFaceMask.getWidth(), bitmapCrop1ForFaceMask.getHeight());
 
                         //for portrait mode:
                         // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
                         if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
-                            maskDetector.processImage(bitmapCrop1);
+                            maskDetector.processImage(bitmapCrop1ForFaceMask, resultTextView2);
                         } else
                             errorString = "InitMaskDetector failed";
 
@@ -145,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     /**
      * Face detection and reduction
@@ -210,10 +232,16 @@ public class MainActivity extends AppCompatActivity {
         box2.limitSquare(bitmapTemp2.getWidth(), bitmapTemp2.getHeight());
         Rect rect1 = box1.transform2Rect();
         Rect rect2 = box2.transform2Rect();
+        Rect rect3 = box1.transform2Rect();
 
         //Cut face
         bitmapCrop1 = MyUtil.crop(bitmapTemp1, rect1);
         bitmapCrop2 = MyUtil.crop(bitmapTemp2, rect2);
+
+        //for better recognition, I've resized box so see more ear and  bottom face part
+        //rect3.right = rect3.right + 10;
+        //rect3.bottom = rect3.bottom + 10;
+        bitmapCrop1ForFaceMask = MyUtil.crop(bitmapTemp1, rect3);
 
         // Draw face frame and five points
         Utils.drawBox(bitmapTemp1, box1, 10);

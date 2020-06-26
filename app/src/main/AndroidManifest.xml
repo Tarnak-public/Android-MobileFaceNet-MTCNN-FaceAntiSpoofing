@@ -20,7 +20,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        android:requestLegacyExternalStorage=" true"
 
 
         <!-- Optional: Add it to automatically download ML model to device after
@@ -32,6 +31,10 @@
         <activity
             android:name=".LiveCameraTextureViewActivity"
             android:label="@string/title_activity_live_camera_texture_view"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".LiveCameraFaceMaskTextureViewActivity"
+            android:label="@string/LiveCameraFaceMaskTextureViewActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".MainActivity"

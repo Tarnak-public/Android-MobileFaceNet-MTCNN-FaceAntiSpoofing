@@ -14,6 +14,7 @@ import android.media.FaceDetector;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.tensorflow.lite.examples.detection.customview.OverlayView;
@@ -43,6 +44,9 @@ public class MaskDetector {
 
     // Face Mask
     private static final int TF_OD_API_INPUT_SIZE = 224;
+
+    //https://pytorch.org/docs/stable/quantization.html
+    //https://towardsdatascience.com/a-tale-of-model-quantization-in-tf-lite-aebe09f255ca
     private static final boolean TF_OD_API_IS_QUANTIZED = false;
     private static final String TF_OD_API_MODEL_FILE = "mask_detector.tflite";
     private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/mask_labelmap.txt";
@@ -196,7 +200,7 @@ public class MaskDetector {
     }
 
 
-    public void processImage(Bitmap croppedFaceWithBitmap) {
+    public void processImage(Bitmap croppedFaceWithBitmap,TextView resultTextView2) {
         ++timestamp;
         final long currTimestamp = timestamp;
 
@@ -213,7 +217,7 @@ public class MaskDetector {
 
         //here we got cropped image
 
-        onFacesDetected(currTimestamp, croppedFaceWithBitmap);
+        onFacesDetected(currTimestamp, croppedFaceWithBitmap, resultTextView2);
 
     }
 
@@ -281,7 +285,7 @@ public class MaskDetector {
     }
 
     //got detected faces
-    void onFacesDetected(long currTimestamp, Bitmap croppedFaceWithBitmap) {
+    void onFacesDetected(long currTimestamp, Bitmap croppedFaceWithBitmap, TextView resultTextView2) {
         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
         final Canvas canvas = new Canvas(cropCopyBitmap);
         final Paint paint = new Paint();
@@ -327,7 +331,7 @@ public class MaskDetector {
              for (Face face : faces) {
          */
         {
-            LOGGER.d("Running detection on face " + currTimestamp);
+            LOGGER.d("Running detection on face " + currTimestamp +  "time");
 
 
             //results = detector.recognizeImage(croppedBitmap);
@@ -413,6 +417,7 @@ public class MaskDetector {
 
                 Log.d("onFacesDetected()", "classifier recognition():" + result.toString() );
 
+                resultTextView2.setText(result.toString());
                 result.setColor(color);
                 result.setLocation(boundingBox);
                 mappedRecognitions.add(result);

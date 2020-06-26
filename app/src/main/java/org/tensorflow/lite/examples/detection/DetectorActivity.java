@@ -14,6 +14,17 @@
  * limitations under the License.
  */
 
+
+/*
+code and model from
+https://github.com/Tarnak-public/facemaskdetector/tree/master/android
+
+The original code works with a single model (trained on the COCO dataset) and computes the results in one single step.
+For this app, we need to implement the two steps detection. Most of the work will consist in splitting the detection, first the face detection and second the mask detection.
+
+ And the faceBmp bitmap is used to draw every detected face, cropping its detected location, and re-scaling to 224 x 224 px to be used as input of the MobileNetV2 model.
+ The frameToCropTransform converts coordinates from the original bitmap to the cropped bitmap space, and cropToFrameTransform does it in the opposite direction.
+ */
 package org.tensorflow.lite.examples.detection;
 
 import android.graphics.Bitmap;
