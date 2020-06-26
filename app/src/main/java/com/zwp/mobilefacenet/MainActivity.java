@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(MainActivity.this, LiveCameraFaceMaskTextureViewActivity.class));
-            }
+           }
         });
         facemask_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         //for portrait mode:
                         // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
                         if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
-                            maskDetector.processImage(bitmapCrop1ForFaceMask, resultTextView2);
+                            maskDetector.processImage(bitmapCrop1ForFaceMask);
                         } else
                             errorString = "InitMaskDetector failed";
 

@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import com.zwp.mobilefacenet.mtcnn.Box;
 
 import org.tensorflow.lite.examples.detection.MaskDetector;
+import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
 import java.io.IOException;
 import java.util.Vector;
@@ -54,7 +55,7 @@ import java.util.Vector;
  * TODO: add options for different display sizes, frame rates, camera selection, etc.
  */
 public class LiveCameraFaceMaskTextureViewActivity extends Activity implements TextureView.SurfaceTextureListener {
-    private static final String TAG = "LiveCameraTViewActivity";
+    private final String TAG = "LiveCameraTViewActivity";
 
 
     private SurfaceTexture mSurfaceTexture;
@@ -85,6 +86,8 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         statusTextView = ((TextView) findViewById(R.id.FaceMaskStatus_textView));
         textureView.setSurfaceTextureListener(this);
         applyMirroringOnCamera(textureView);
+
+
 
 /*
         Button button = findViewById(R.id.TakePictureButton);
@@ -162,6 +165,11 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         return true;
     }
 
+    //    static int frameSkipperEnd  = 2;
+//    static int frameSkipperCounter = frameSkipperEnd + 1;
+    private long frameSkipperInMS = 300;
+    private long frameSkipperLastMS = 0;
+
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // Invoked every time there's a new Camera preview frame
@@ -188,9 +196,18 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         //       Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
 
-        Log.v(TAG, "onSurfaceTextureUpdated() occured time:" + start);
+        Log.v(TAG, "onSurfaceTextureUpdated() occured time:" + start + " bitmap:" + bitmap);
+        Log.v(TAG, "onSurfaceTextureUpdated() actual ms difference " + (start - frameSkipperLastMS) + " , frame skip threshold:" + frameSkipperInMS);
 
-        RunLiveFaceDetect();
+        if (start - frameSkipperLastMS >= frameSkipperInMS) {
+            //RunLiveFaceDetect();
+
+            runLiveFaceDetectInBackground();
+            frameSkipperLastMS = start;
+            Log.v(TAG, "onSurfaceTextureUpdated() run face detect ");
+        }
+
+
     }
 
 
@@ -213,31 +230,32 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     }
 
 
-    public void RunLiveFaceDetect() {
+    public Classifier.Recognition RunLiveFaceDetect() {
         String errorString = "";
         boolean gotError = false;
-
         Size size;
+        Classifier.Recognition classifierRecognition = null;
+
         if (bitmap != null) {
             //try actions on this bitmap
 
-            if (maskDetector == null)
+//            if (maskDetector == null)
                 maskDetector = new MaskDetector();
 
-            if ((maskDetector = new MaskDetector()) != null) {
+            if (maskDetector != null) {
 
                 //find face
-                if( (bitmapCroppedFace = findFace(bitmap)) != null) {
+                if ((bitmapCroppedFace = findFace(bitmap)) != null) {
 
                     //tricked resized image for width and height
-                    ((ImageView) findViewById(R.id.FaceImageView)).setImageBitmap(bitmapCroppedFace);
+                    //                   ((ImageView) findViewById(R.id.FaceImageView)).setImageBitmap(bitmapCroppedFace);
 
                     size = new Size(bitmapCroppedFace.getWidth(), bitmapCroppedFace.getHeight());
 
                     //for portrait mode:
                     // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
                     if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
-                        maskDetector.processImage(bitmapCroppedFace, statusTextView);
+                        classifierRecognition = maskDetector.processImage(bitmapCroppedFace);
                     } else
                         errorString = "InitMaskDetector failed";
                 } else {
@@ -245,7 +263,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
                 }
 
             } else
-                errorString = "Init MaskDetector failed somehow";
+            errorString = "Init MaskDetector failed somehow";
         } else
             errorString = "No bitmap face provided";
 
@@ -253,31 +271,33 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         if (gotError) {
             Toast.makeText(MainActivity.appContext, errorString, Toast.LENGTH_LONG).show();
         }
+
+    return classifierRecognition;
     }
 
 
+    private Bitmap findFace(Bitmap snapshotFromCameraBitmap) {
+        Vector<Box> boxes1 = new Vector<>();
+        Bitmap bitmapCroppedToFace;
 
-private Bitmap findFace(Bitmap snapshotFromCameraBitmap) {
-    Vector<Box> boxes1 = new Vector<>();
-    Bitmap bitmapCroppedToFace;
+        //Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap;
+        Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap.copy(snapshotFromCameraBitmap.getConfig(), true);
 
-//    Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap;
-    Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap.copy(snapshotFromCameraBitmap.getConfig(), true);
-    boxes1 = MainActivity.mtcnn.detectFaces(bitmapForFaceDetection, bitmapForFaceDetection.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
+        boxes1 = MainActivity.mtcnn.detectFaces(bitmapForFaceDetection, bitmapForFaceDetection.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
 
-    if (boxes1.size() == 0 ) {  //got face?
-        return null;
+        if (boxes1.size() == 0) {  //got face?
+            return null;
+        }
+        Box box1 = boxes1.get(0);
+        box1.toSquareShape();
+        box1.limitSquare(bitmapForFaceDetection.getWidth(), bitmapForFaceDetection.getHeight());
+        Rect rect1 = box1.transform2Rect();
+
+        //Cut face
+        bitmapCroppedToFace = MyUtil.crop(bitmapForFaceDetection, rect1);
+
+        return bitmapCroppedToFace;
     }
-    Box box1 = boxes1.get(0);
-    box1.toSquareShape();
-    box1.limitSquare(bitmapForFaceDetection.getWidth(), bitmapForFaceDetection.getHeight());
-    Rect rect1 = box1.transform2Rect();
-
-    //Cut face
-    bitmapCroppedToFace = MyUtil.crop(bitmapForFaceDetection, rect1);
-
-    return bitmapCroppedToFace;
-}
 
 
 
@@ -359,4 +379,34 @@ private Bitmap findFace(Bitmap snapshotFromCameraBitmap) {
         }
 
     }
+
+    //https://android-developers.googleblog.com/2009/05/painless-threading.html
+    private void runLiveFaceDetectInBackground() {
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            //do something
+            Classifier.Recognition classifierRecognition;
+
+            ImageView imageView = (ImageView) findViewById(R.id.FaceImageView);
+
+            classifierRecognition = RunLiveFaceDetect();
+            // Update the progress bar and display the
+            //current value in the text view
+            if (bitmapCroppedFace != null) {
+
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+
+                        // Stuff that updates the UI
+                        imageView.setImageBitmap(bitmapCroppedFace);
+                    }
+                });
+            }
+        } // run()
+    }).start();
+
+}
 }

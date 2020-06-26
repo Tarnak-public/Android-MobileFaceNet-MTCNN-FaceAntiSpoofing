@@ -200,7 +200,7 @@ public class MaskDetector {
     }
 
 
-    public void processImage(Bitmap croppedFaceWithBitmap,TextView resultTextView2) {
+    public Classifier.Recognition processImage(Bitmap croppedFaceWithBitmap) {
         ++timestamp;
         final long currTimestamp = timestamp;
 
@@ -217,7 +217,7 @@ public class MaskDetector {
 
         //here we got cropped image
 
-        onFacesDetected(currTimestamp, croppedFaceWithBitmap, resultTextView2);
+        return onFacesDetected(currTimestamp, croppedFaceWithBitmap);
 
     }
 
@@ -285,7 +285,7 @@ public class MaskDetector {
     }
 
     //got detected faces
-    void onFacesDetected(long currTimestamp, Bitmap croppedFaceWithBitmap, TextView resultTextView2) {
+    Classifier.Recognition onFacesDetected(long currTimestamp, Bitmap croppedFaceWithBitmap) {
         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
         final Canvas canvas = new Canvas(cropCopyBitmap);
         final Paint paint = new Paint();
@@ -331,7 +331,7 @@ public class MaskDetector {
              for (Face face : faces) {
          */
         {
-            LOGGER.d("Running detection on face " + currTimestamp +  "time");
+            LOGGER.d("Running detection on face '" + currTimestamp +  "' time. Bitmap is:" + croppedFaceWithBitmap);
 
 
             //results = detector.recognizeImage(croppedBitmap);
@@ -362,8 +362,8 @@ public class MaskDetector {
                 matrix.postScale(sx, sy);
                 cvFace.drawBitmap(portraitBmp, matrix, null);
 
-                if (true) { //SAVE_PREVIEW_BITMAP
-                    ImageUtils.saveBitmap(faceBmp,"facebmp_after_matrix_line362");
+                if (false) { //SAVE_PREVIEW_BITMAP
+                    //ImageUtils.saveBitmap(faceBmp,"facebmp_after_matrix_line362");
                 }
 
                 String label = "";
@@ -417,7 +417,7 @@ public class MaskDetector {
 
                 Log.d("onFacesDetected()", "classifier recognition():" + result.toString() );
 
-                resultTextView2.setText(result.toString());
+                //resultTextView2.setText(result.toString());
                 result.setColor(color);
                 result.setLocation(boundingBox);
                 mappedRecognitions.add(result);
@@ -431,7 +431,9 @@ public class MaskDetector {
         }
         updateResults(currTimestamp, mappedRecognitions);
 
+        return (mappedRecognitions.size() > 0 ? mappedRecognitions.get(mappedRecognitions.size() - 1) : null);
     }
+
 
 /*
 

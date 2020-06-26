@@ -3,6 +3,7 @@ package com.zwp.mobilefacenet.mtcnn;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.util.Log;
 
 import com.zwp.mobilefacenet.MyUtil;
 
@@ -269,7 +270,12 @@ public class MTCNN {
         Map<Integer, Object> outputs = new HashMap<>();
         outputs.put(rInterpreter.getOutputIndex("rnet/prob1"), prob1);
         outputs.put(rInterpreter.getOutputIndex("rnet/conv5-2/conv5-2"), conv5_2_conv5_2);
-        rInterpreter.runForMultipleInputsOutputs(new Object[]{rNetIn}, outputs);
+
+        try {
+            rInterpreter.runForMultipleInputsOutputs(new Object[]{rNetIn}, outputs);
+        } catch (IllegalArgumentException e) {
+            Log.i("rNetForward()","IllegalArgumentException, probably 'Array lengths cannot be 0.");
+        }
 
         // 转换
         for (int i = 0; i < num; i++) {
@@ -325,7 +331,12 @@ public class MTCNN {
         outputs.put(oInterpreter.getOutputIndex("onet/prob1"), prob1);
         outputs.put(oInterpreter.getOutputIndex("onet/conv6-2/conv6-2"), conv6_2_conv6_2);
         outputs.put(oInterpreter.getOutputIndex("onet/conv6-3/conv6-3"), conv6_3_conv6_3);
-        oInterpreter.runForMultipleInputsOutputs(new Object[]{oNetIn}, outputs);
+        try {
+
+            oInterpreter.runForMultipleInputsOutputs(new Object[]{oNetIn}, outputs);
+        } catch (IllegalArgumentException e) {
+            Log.i("oNetForward()", "IllegalArgumentException" ); //+ e.getMessage()
+        }
 
         // 转换
         for (int i = 0; i < num; i++) {
