@@ -21,8 +21,8 @@ package com.zwp.mobilefacenet;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -31,10 +31,8 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,6 +67,9 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     Bitmap bitmapCroppedFace;
     long start = System.currentTimeMillis();
     long end = System.currentTimeMillis();
+
+    MaskDetector maskDetector = null;
+
 //    Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
     @Override
@@ -123,11 +124,10 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     }
 
 
-
     /*
        Fix for back camera treated as front and do Mirroring
     */
-    void applyMirroringOnCamera(TextureView textureView) {
+    private void applyMirroringOnCamera(TextureView textureView) {
 
         // MainActivity.appContext.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = Resources.getSystem().getDisplayMetrics().widthPixels;
@@ -185,7 +185,10 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         bitmap = textureView.getBitmap();
         end = System.currentTimeMillis();
         //Log.d(TAG, "onSurfaceTextureUpdated() " + surface.getTimestamp());
- //       Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
+        //       Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
+
+
+        Log.v(TAG, "onSurfaceTextureUpdated() occured time:" + start);
 
         RunLiveFaceDetect();
     }
@@ -210,38 +213,41 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     }
 
 
-
-
     public void RunLiveFaceDetect() {
         String errorString = "";
         boolean gotError = false;
-        MaskDetector maskDetector;
+
         Size size;
         if (bitmap != null) {
             //try actions on this bitmap
+
+            if (maskDetector == null)
+                maskDetector = new MaskDetector();
+
             if ((maskDetector = new MaskDetector()) != null) {
-                //original is this:
-                //bitmapCrop1ForFaceMask = bitmapCrop1;
 
-                //check face
-                Vector<Box> boxes1 = new Vector<>();
+                //find face
+                if( (bitmapCroppedFace = findFace(bitmap)) != null) {
 
-                //tricked resized image for width and height
-                ((ImageView)findViewById(R.id.FaceImageView)).setImageBitmap(bitmapCroppedFace);
+                    //tricked resized image for width and height
+                    ((ImageView) findViewById(R.id.FaceImageView)).setImageBitmap(bitmapCroppedFace);
 
-                size = new Size(bitmapCroppedFace.getWidth(), bitmapCroppedFace.getHeight());
+                    size = new Size(bitmapCroppedFace.getWidth(), bitmapCroppedFace.getHeight());
 
-                //for portrait mode:
-                // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
-                if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
-                    maskDetector.processImage(bitmapCroppedFace, statusTextView);
-                } else
-                    errorString = "InitMaskDetector failed";
+                    //for portrait mode:
+                    // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
+                    if ((maskDetector.InitMaskDetector(MainActivity.appContext, getAssets(), size, 0, 180, 0)) == true) {
+                        maskDetector.processImage(bitmapCroppedFace, statusTextView);
+                    } else
+                        errorString = "InitMaskDetector failed";
+                } else {
+                    errorString = "No face found.";
+                }
 
             } else
-                errorString = "init MaskDetector failed somehow";
+                errorString = "Init MaskDetector failed somehow";
         } else
-            errorString = "No cropped bitmap in slot 1";
+            errorString = "No bitmap face provided";
 
 
         if (gotError) {
@@ -251,18 +257,37 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
 
 
 
+private Bitmap findFace(Bitmap snapshotFromCameraBitmap) {
+    Vector<Box> boxes1 = new Vector<>();
+    Bitmap bitmapCroppedToFace;
+
+//    Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap;
+    Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap.copy(snapshotFromCameraBitmap.getConfig(), true);
+    boxes1 = MainActivity.mtcnn.detectFaces(bitmapForFaceDetection, bitmapForFaceDetection.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
+
+    if (boxes1.size() == 0 ) {  //got face?
+        return null;
+    }
+    Box box1 = boxes1.get(0);
+    box1.toSquareShape();
+    box1.limitSquare(bitmapForFaceDetection.getWidth(), bitmapForFaceDetection.getHeight());
+    Rect rect1 = box1.transform2Rect();
+
+    //Cut face
+    bitmapCroppedToFace = MyUtil.crop(bitmapForFaceDetection, rect1);
+
+    return bitmapCroppedToFace;
+}
 
 
 
 
 
-  /*
-  *
-  *
-  *
-  * */
-
-
+    /*
+     *
+     *
+     *
+     * */
 
 
     private void startPreview_newway() {
@@ -308,7 +333,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
 
     //---------------this working somehow-----------
     private void startPreview_oldway() {
-        MainActivity. mCamera = Camera.open();
+        MainActivity.mCamera = Camera.open();
         if (MainActivity.mCamera == null) {
             // Seeing this on Nexus 7 2012 -- I guess it wants a rear-facing camera, but
             // there isn't one.  TODO: fix

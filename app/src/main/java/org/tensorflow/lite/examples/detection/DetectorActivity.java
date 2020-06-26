@@ -47,7 +47,7 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
+//import com.google.android.gms.tasks.OnSuccessListener;
 import com.zwp.mobilefacenet.R;
 /*
 import com.google.mlkit.vision.common.InputImage;

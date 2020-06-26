@@ -37,17 +37,24 @@ import java.util.Vector;
 import static com.zwp.mobilefacenet.PermissionHelper.launchPermissionSettings;
 import static com.zwp.mobilefacenet.PermissionHelper.requestWriteStoragePermission;
 
+
+/*
+Z domu:
+F:\AndroidSDK\platform-tools\adb.exe connect 192.168.1.8:5555
+
+ */
 public class MainActivity extends AppCompatActivity {
 
     public static final int IMAGE_FORMAT = ImageFormat.NV21;
-    public static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//Camera.CameraInfo.CAMERA_FACING_FRONT;
+    public static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;//Camera.CameraInfo.CAMERA_FACING_FRONT;
     public static Camera mCamera;
 
     public static final String TAG = "";
-    private MTCNN mtcnn; // Face Detection
-    private FaceAntiSpoofing fas; // Biopsy
-    private MobileFaceNet mfn; // Face comparison
-    private AIZOOTechFaceMask aFaceMask; // zoo model
+
+    public static MTCNN mtcnn; // Face Detection
+    public FaceAntiSpoofing fas; // Biopsy
+    public MobileFaceNet mfn; // Face comparison
+    public AIZOOTechFaceMask aFaceMask; // zoo model
 
     public static Bitmap bitmap1;
     public static Bitmap bitmap2;
@@ -94,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         //launchPermissionSettings(this);
 
         try {
-            mtcnn = new MTCNN(getAssets());
+            mtcnn = new com.zwp.mobilefacenet.mtcnn.MTCNN(getAssets());
             fas = new FaceAntiSpoofing(getAssets());
             mfn = new MobileFaceNet(getAssets());
             aFaceMask = new AIZOOTechFaceMask(getAssets());
@@ -126,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         liveviewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //faceCompare();
+                startActivity(new Intent(MainActivity.this, LiveCameraFaceMaskTextureViewActivity.class));
             }
         });
         facemask_btn.setOnClickListener(new View.OnClickListener() {

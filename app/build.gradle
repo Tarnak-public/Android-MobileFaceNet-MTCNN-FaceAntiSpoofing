@@ -47,13 +47,13 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
 
 
-    implementation "com.google.android.gms:play-services-base:15.0.1"
-    implementation "com.google.android.gms:play-services-auth:16.0.0"
-    implementation "com.google.android.gms:play-services-games:15.0.1"
+//    implementation "com.google.android.gms:play-services-base:15.0.1"
+//    implementation "com.google.android.gms:play-services-auth:16.0.0"
+//    implementation "com.google.android.gms:play-services-games:15.0.1"
 
 
-    implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
-    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:20.0.1'
+//    implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
+//    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:20.0.1'
 
 //    implementation 'com.android.support:support-v4:23.0.0'
    //implementation 'com.android.support:support-v4:23.+'
