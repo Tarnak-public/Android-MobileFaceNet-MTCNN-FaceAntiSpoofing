@@ -97,8 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         requestWriteStoragePermission(this);
-        //requestCameraPermission();
-        //launchPermissionSettings(this);
+
 
         try {
             mtcnn = new com.zwp.mobilefacenet.mtcnn.MTCNN(getAssets());
