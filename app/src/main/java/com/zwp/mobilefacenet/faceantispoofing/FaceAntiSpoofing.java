@@ -4,7 +4,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.zwp.mobilefacenet.MyUtil;
+import com.zwp.mobilefacenet.utils.MyUtil;
 
 import org.tensorflow.lite.Interpreter;
 

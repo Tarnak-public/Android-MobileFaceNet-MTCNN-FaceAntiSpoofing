@@ -1,33 +1,22 @@
 package com.zwp.mobilefacenet;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Display;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.ByteArrayOutputStream;
+import com.zwp.mobilefacenet.utils.MyUtil;
+
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 自定义相机，不要使用任何光线调节功能，否则活体检测无法通过。

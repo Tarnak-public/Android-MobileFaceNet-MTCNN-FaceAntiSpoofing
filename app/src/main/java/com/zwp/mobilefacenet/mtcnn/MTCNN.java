@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Log;
 
-import com.zwp.mobilefacenet.MyUtil;
+import com.zwp.mobilefacenet.utils.MyUtil;
 
 import org.tensorflow.lite.Interpreter;
 

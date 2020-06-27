@@ -1,4 +1,4 @@
-package com.zwp.mobilefacenet;
+package com.zwp.mobilefacenet.utils;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -16,6 +16,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
+import com.zwp.mobilefacenet.MainActivity;
 import com.zwp.mobilefacenet.mtcnn.Box;
 
 import java.io.ByteArrayOutputStream;

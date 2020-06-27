@@ -21,8 +21,6 @@ package com.zwp.mobilefacenet;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -31,7 +29,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
@@ -41,9 +38,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import java.io.IOException;
+import com.zwp.mobilefacenet.utils.MyUtil;
+import com.zwp.mobilefacenet.utils.PermissionHelper;
 
-import static android.view.SurfaceHolder.*;
+import java.io.IOException;
 
 /**
  * More or less straight out of TextureView's doc.

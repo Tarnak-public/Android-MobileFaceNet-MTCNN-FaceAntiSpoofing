@@ -3,7 +3,7 @@ package com.zwp.mobilefacenet.mobilefacenet;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 
-import com.zwp.mobilefacenet.MyUtil;
+import com.zwp.mobilefacenet.utils.MyUtil;
 
 import org.tensorflow.lite.Interpreter;
 

@@ -1,4 +1,4 @@
-package org.tensorflow.lite.examples.detection;
+package softkom.com.classes;
 
 import android.content.Context;
 import android.content.res.AssetManager;

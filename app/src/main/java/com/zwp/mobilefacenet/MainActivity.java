@@ -25,17 +25,16 @@ import com.zwp.mobilefacenet.mobilefacenet.MobileFaceNet;
 import com.zwp.mobilefacenet.mtcnn.Box;
 import com.zwp.mobilefacenet.mtcnn.MTCNN;
 import com.zwp.mobilefacenet.mtcnn.Utils;
-import com.zwp.mobilefacenet.PermissionHelper;
+import com.zwp.mobilefacenet.utils.MyUtil;
 
-import org.tensorflow.lite.examples.detection.MaskDetector;
+import softkom.com.classes.MaskDetector;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-import static com.zwp.mobilefacenet.PermissionHelper.launchPermissionSettings;
-import static com.zwp.mobilefacenet.PermissionHelper.requestWriteStoragePermission;
+import static com.zwp.mobilefacenet.utils.PermissionHelper.requestWriteStoragePermission;
 
 
 /*

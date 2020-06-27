@@ -40,8 +40,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.zwp.mobilefacenet.mtcnn.Box;
+import com.zwp.mobilefacenet.utils.MyUtil;
+import com.zwp.mobilefacenet.utils.PermissionHelper;
 
-import org.tensorflow.lite.examples.detection.MaskDetector;
+import softkom.com.classes.MaskDetector;
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
 import java.io.IOException;
