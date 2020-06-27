@@ -102,6 +102,9 @@ public class MaskDetector {
     AssetManager assetManager;
     private int previewWidth, previewHeight;
 
+    final List<Classifier.Recognition> mappedRecognitions = new LinkedList<Classifier.Recognition>();
+    //final List<Classifier.Recognition> results = new ArrayList<>();
+
     // Which detection model to use: by default uses Tensorflow Object Detection API frozen
     // checkpoints.
     private enum DetectorMode {
@@ -284,6 +287,13 @@ public class MaskDetector {
 
     }
 
+    public void endMaskDetector() {
+        if(mappedRecognitions != null) {
+            mappedRecognitions.clear();
+        }
+
+    }
+
     //got detected faces
     Classifier.Recognition onFacesDetected(long currTimestamp, Bitmap croppedFaceWithBitmap) {
         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
@@ -301,9 +311,6 @@ public class MaskDetector {
                 break;
         }
 
-        final List<Classifier.Recognition> mappedRecognitions =
-                new LinkedList<Classifier.Recognition>();
-        //final List<Classifier.Recognition> results = new ArrayList<>();
 
         // Note this can be done only once
         int sourceW = rgbFrameBitmap.getWidth();
@@ -433,6 +440,8 @@ public class MaskDetector {
 
         return (mappedRecognitions.size() > 0 ? mappedRecognitions.get(mappedRecognitions.size() - 1) : null);
     }
+
+
 
 
 /*

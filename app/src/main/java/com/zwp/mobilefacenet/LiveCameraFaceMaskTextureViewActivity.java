@@ -43,6 +43,7 @@ import com.zwp.mobilefacenet.mtcnn.Box;
 import com.zwp.mobilefacenet.utils.MyUtil;
 import com.zwp.mobilefacenet.utils.PermissionHelper;
 
+import softkom.com.classes.ImageFaceAndMaskDetection;
 import softkom.com.classes.MaskDetector;
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
@@ -63,6 +64,8 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     private SurfaceTexture mSurfaceTexture;
     private TextView statusTextView;
     TextureView textureView;
+    ImageView faceImageView;
+
     private int displayDegree;
     private byte[] mData;
     private Camera.Size mSize;
@@ -72,6 +75,8 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     long end = System.currentTimeMillis();
 
     MaskDetector maskDetector = null;
+
+    ImageFaceAndMaskDetection imageFaceAndMaskDetection;
 
 //    Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
@@ -86,10 +91,11 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         setContentView(R.layout.activity_live_camera_textureview_facemask);
         textureView = ((TextureView) findViewById(R.id.LiveCameraFacemaskTextureViewActivity));
         statusTextView = ((TextView) findViewById(R.id.FaceMaskStatus_textView));
+        faceImageView = ((ImageView) findViewById(R.id.FaceImageView));
         textureView.setSurfaceTextureListener(this);
         applyMirroringOnCamera(textureView);
 
-
+        imageFaceAndMaskDetection = new ImageFaceAndMaskDetection();
 
 /*
         Button button = findViewById(R.id.TakePictureButton);
@@ -204,7 +210,19 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         if (start - frameSkipperLastMS >= frameSkipperInMS) {
             //RunLiveFaceDetect();
 
-            runLiveFaceDetectInBackground();
+            //runLiveFaceDetectInBackground();
+            imageFaceAndMaskDetection.DetectFromImage(bitmap);
+
+            if((bitmapCroppedFace = imageFaceAndMaskDetection.getBitmapOfDetectedFace())  != null) {
+
+                faceImageView.setImageBitmap(bitmapCroppedFace);
+                //statusTextView.setText( "Title: " + imageFaceAndMaskDetection.getClassifierRecognition().getTitle() + " , " + imageFaceAndMaskDetection.getClassifierRecognition().getConfidence());
+                statusTextView.setText( imageFaceAndMaskDetection.getClassifierRecognition().toString());
+
+                //imageFaceAndMaskDetection.FinishDetectingImage();
+            } else{
+                faceImageView.setImageDrawable(null);
+            }
             frameSkipperLastMS = start;
             Log.v(TAG, "onSurfaceTextureUpdated() run face detect ");
         }

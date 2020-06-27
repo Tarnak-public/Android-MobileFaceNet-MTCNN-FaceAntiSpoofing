@@ -32,7 +32,7 @@ public class FaceDetection {
     private boolean gotError = false;
     private Size size;
     private Classifier.Recognition classifierRecognition = null;
-    private MaskDetector maskDetector = null;
+
     protected MTCNN mtcnn; // Face Detection
 
     private Bitmap bitmapCroppedFace;
@@ -45,10 +45,10 @@ public class FaceDetection {
 
 
         //if (maskDetector == null)
-        maskDetector = new MaskDetector();
+  //      maskDetector = new MaskDetector();
 
         try {
-            mtcnn = new MTCNN(appContext.getAssets());
+            mtcnn = new com.zwp.mobilefacenet.mtcnn.MTCNN(appContext.getAssets());
         } catch (IOException e) {
             e.printStackTrace();
             EndFaceDetect();
@@ -58,14 +58,14 @@ public class FaceDetection {
 
     //clean up stuff here
     public void EndFaceDetect() {
-        maskDetector = null;
-        mtcnn = null;
+//        maskDetector = null;
+//        mtcnn = null;
         bitmapCroppedFace = null;
 
     }
 
 
-    public Classifier.Recognition RunFaceDetect(Bitmap snapshotFromCameraBitmap) {
+    public Bitmap RunFaceDetect(Bitmap snapshotFromCameraBitmap) {
 
 
         if (snapshotFromCameraBitmap != null) {
@@ -73,25 +73,25 @@ public class FaceDetection {
 
 
 
-            if (maskDetector != null) {
+//            if (maskDetector != null) {
 
                 //find face
                 if ((bitmapCroppedFace = findFace(snapshotFromCameraBitmap)) != null) {
 
-                     size = new Size(bitmapCroppedFace.getWidth(), bitmapCroppedFace.getHeight());
+//                     size = new Size(bitmapCroppedFace.getWidth(), bitmapCroppedFace.getHeight());
 
                     //for portrait mode:
                     // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
-                    if ((maskDetector.InitMaskDetector(appContext, appContext.getAssets(), size, 0, 180, 0)) == true) {
-                        classifierRecognition = maskDetector.processImage(bitmapCroppedFace);
-                    } else
-                        errorString = "InitMaskDetector failed";
+//                    if ((maskDetector.InitMaskDetector(appContext, appContext.getAssets(), size, 0, 180, 0)) == true) {
+//                        classifierRecognition = maskDetector.processImage(bitmapCroppedFace);
+//                    } else
+//                        errorString = "InitMaskDetector failed";
                 } else {
                     errorString = "No face found.";
                 }
 
-            } else
-                errorString = "Init MaskDetector failed somehow";
+//            } else
+//                errorString = "Init MaskDetector failed somehow";
         } else
             errorString = "No bitmap face provided";
 
@@ -101,7 +101,7 @@ public class FaceDetection {
             Log.v("RunFaceDetect()","ERROR: " + errorString);
         }
 
-        return classifierRecognition;
+        return bitmapCroppedFace;
     }
 
 
@@ -109,8 +109,8 @@ public class FaceDetection {
         Vector<Box> boxes1 = new Vector<>();
         Bitmap bitmapCroppedToFace;
 
-        //Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap;
-        Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap.copy(snapshotFromCameraBitmap.getConfig(), true);
+        Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap;
+//        Bitmap bitmapForFaceDetection = snapshotFromCameraBitmap.copy(snapshotFromCameraBitmap.getConfig(), true);
 
         boxes1 = mtcnn.detectFaces(bitmapForFaceDetection, bitmapForFaceDetection.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
 

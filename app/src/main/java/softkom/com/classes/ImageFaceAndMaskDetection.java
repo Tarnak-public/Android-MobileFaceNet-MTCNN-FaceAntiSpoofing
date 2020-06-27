@@ -4,22 +4,71 @@ package softkom.com.classes;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Size;
+
+import softkom.com.classes.FaceDetection;
+import softkom.com.classes.MaskDetector;
 
 import com.zwp.mobilefacenet.MainActivity;
 
-public class ImageFaceAndMaskDetection {
+import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
-    // private static MTCNN mtcnn;
+public class ImageFaceAndMaskDetection {
 
     MaskDetector maskDetector = null;
     FaceDetection faceDetection = null;
 
-    public ImageFaceAndMaskDetection() {
+    Size size;
 
-        new FaceDetection(MainActivity.appContext);
-        new MaskDetector();
+    public Bitmap getBitmapOfDetectedFace() {
+        return bitmapWithCroppedFace;
     }
 
+    private Bitmap bitmapWithCroppedFace = null;
+
+    private Bitmap bitmapForFaceFind = null;
+
+    public Classifier.Recognition getClassifierRecognition() {
+        return classifierRecognition;
+    }
+
+    private Classifier.Recognition classifierRecognition = null;
+
+    public ImageFaceAndMaskDetection() {
+
+        faceDetection = new FaceDetection(MainActivity.appContext);
+        maskDetector = new MaskDetector();
+    }
+
+
+    public boolean DetectFromImage(Bitmap imageToDetect) {
+        boolean result = false;
+
+        //copy image to be safe that will be not changed
+        bitmapForFaceFind = Bitmap.createBitmap(imageToDetect);
+
+        //use as is, will be changed meantime?
+        //bitmapForFaceFind = imageToDetect;
+
+        bitmapWithCroppedFace = null;
+
+        if ((bitmapWithCroppedFace = faceDetection.RunFaceDetect(bitmapForFaceFind)) != null) {
+
+            size = new Size(bitmapWithCroppedFace.getWidth(), bitmapWithCroppedFace.getHeight());
+
+            //for portrait mode: I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
+            if ((maskDetector.InitMaskDetector(MainActivity.appContext, MainActivity.appContext.getAssets(), size, 0, 180, 0)) == true) {
+
+                classifierRecognition = maskDetector.processImage(bitmapWithCroppedFace);
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    public void FinishDetectingImage() {
+        maskDetector.endMaskDetector();
+    }
 }
 
 
@@ -35,9 +84,9 @@ class AsyncTaskRunner extends AsyncTask<AsyncContext, AsyncContext, AsyncContext
     }
 
     @Override
-    protected AsyncContext doInBackground(AsyncContext...args) {
+    protected AsyncContext doInBackground(AsyncContext... args) {
         AsyncContext asyncContext = null;
-        for(Object o : args) {
+        for (Object o : args) {
             asyncContext = (AsyncContext) o;
         }
         //doSomething();
@@ -57,7 +106,6 @@ class AsyncTaskRunner extends AsyncTask<AsyncContext, AsyncContext, AsyncContext
         //updateProgressUI();
     }
 }
-
 
 
 //https://stackoverflow.com/questions/33041573/android-create-a-background-thread-that-runs-periodically-and-does-ui-tasks
