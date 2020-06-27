@@ -39,7 +39,7 @@ public class FaceDetection {
     private Context appContext;
 
 
-    void FaceDetection(Context applicationContext) {
+    public FaceDetection(Context applicationContext) {
         //can be used later from thread?
         appContext = applicationContext;
 

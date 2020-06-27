@@ -5,6 +5,8 @@ package softkom.com.classes;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
+import com.zwp.mobilefacenet.MainActivity;
+
 public class ImageFaceAndMaskDetection {
 
     // private static MTCNN mtcnn;
@@ -14,7 +16,8 @@ public class ImageFaceAndMaskDetection {
 
     public ImageFaceAndMaskDetection() {
 
-        new
+        new FaceDetection(MainActivity.appContext);
+        new MaskDetector();
     }
 
 }
