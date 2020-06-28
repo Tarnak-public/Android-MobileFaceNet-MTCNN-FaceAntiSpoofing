@@ -21,6 +21,13 @@ android:layout_height="match_parent">
         tools:srcCompat="@tools:sample/avatars"
         android:contentDescription="@string/faceimage" />
 
+    <ImageView
+        android:id="@+id/countourimage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/contour"
+        app:srcCompat="@drawable/good_contour" />
+
     <TextView
         android:id="@+id/FaceMaskStatus_textView"
         android:layout_width="match_parent"

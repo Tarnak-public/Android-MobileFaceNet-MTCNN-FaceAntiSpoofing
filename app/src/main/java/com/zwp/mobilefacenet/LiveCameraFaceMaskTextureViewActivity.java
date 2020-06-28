@@ -21,6 +21,7 @@ package com.zwp.mobilefacenet;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -97,6 +98,38 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
 
         imageFaceAndMaskDetection = new ImageFaceAndMaskDetection();
 
+        imageFaceAndMaskDetection.setCustomObjectListener(new ImageFaceAndMaskDetection.DetectionPhaseListener() {
+            @Override
+            public void onFaceDetected (Bitmap bitmapOfDetectedFace) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                faceImageView.setImageBitmap(bitmapOfDetectedFace);
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onResultOfDetection(Classifier.Recognition classRecognition) {
+                //imageFaceAndMaskDetection.getClassifierRecognition()
+
+                if(classRecognition != null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            statusTextView.setTextColor(classRecognition.getColor());
+                            statusTextView.setText(classRecognition.toString());
+                        }
+                    });
+                }
+            }
+        });
 /*
         Button button = findViewById(R.id.TakePictureButton);
         button.setOnClickListener(new View.OnClickListener() {
@@ -181,22 +214,6 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // Invoked every time there's a new Camera preview frame
-/*
-		TextureView.getBitmap(bitmap);
-
-		final Canvas c = SurfaceHolder.lockCanvas();
-		if ( c != null) {
-			//canvas.drawText("getBmp= "  + time1, 10, 40, paint1);
-			c.drawBitmap(bmp, 0, 0, null);
-            SurfaceHolder.unlockCanvasAndPost(c);
-		}
-		long total = System.currentTimeMillis() - time0;
-		long time2 = total -time1;
-		Log.i("onSurfaceTextureUpdated", "timing: getBmp= "  + time1 + " draw= " + time2 + " total= " + total);
-*/
-
-
-        // Invoked every time there's a new Camera preview frame
         start = System.currentTimeMillis();
         bitmap = textureView.getBitmap();
         end = System.currentTimeMillis();
@@ -207,25 +224,61 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         Log.v(TAG, "onSurfaceTextureUpdated() occured time:" + start + " bitmap:" + bitmap);
         Log.v(TAG, "onSurfaceTextureUpdated() actual ms difference " + (start - frameSkipperLastMS) + " , frame skip threshold:" + frameSkipperInMS);
 
+            Log.v(TAG, "onSurfaceTextureUpdated() START FACE AND MASK DETECTION ");
+            if( imageFaceAndMaskDetection.isStillProcessing() == false) {
+
+                Log.v(TAG, "onSurfaceTextureUpdated() RUNNING FACE AND MASK ");
+
+                imageFaceAndMaskDetection.DetectFromImage(bitmap);
+
+                /* this is not thread safe
+                if ((bitmapCroppedFace = imageFaceAndMaskDetection.getBitmapOfDetectedFace()) != null) {
+
+                    faceImageView.setImageBitmap(bitmapCroppedFace);
+                    //statusTextView.setText( "Title: " + imageFaceAndMaskDetection.getClassifierRecognition().getTitle() + " , " + imageFaceAndMaskDetection.getClassifierRecognition().getConfidence());
+                    statusTextView.setText(imageFaceAndMaskDetection.getClassifierRecognition().toString());
+
+                    //imageFaceAndMaskDetection.FinishDetectingImage();
+                } else {
+                    faceImageView.setImageDrawable(null);
+                }
+                */
+
+            }
+            else {
+                Log.v(TAG, "onSurfaceTextureUpdated() STILL BUSY PROCESSING PREVIOUS DETECTION ");
+            }
+
+        /*
+        //static frame skipper implementation, still ui thread, drama
         if (start - frameSkipperLastMS >= frameSkipperInMS) {
             //RunLiveFaceDetect();
 
-            //runLiveFaceDetectInBackground();
-            imageFaceAndMaskDetection.DetectFromImage(bitmap);
+            Log.v(TAG, "onSurfaceTextureUpdated() START FACE AND MASK DETECTION ");
+            if( imageFaceAndMaskDetection.isStillProcessing() == false) {
 
-            if((bitmapCroppedFace = imageFaceAndMaskDetection.getBitmapOfDetectedFace())  != null) {
+                Log.v(TAG, "onSurfaceTextureUpdated() RUNNING FACE AND MASK ");
 
-                faceImageView.setImageBitmap(bitmapCroppedFace);
-                //statusTextView.setText( "Title: " + imageFaceAndMaskDetection.getClassifierRecognition().getTitle() + " , " + imageFaceAndMaskDetection.getClassifierRecognition().getConfidence());
-                statusTextView.setText( imageFaceAndMaskDetection.getClassifierRecognition().toString());
+                imageFaceAndMaskDetection.DetectFromImage(bitmap);
 
-                //imageFaceAndMaskDetection.FinishDetectingImage();
-            } else{
-                faceImageView.setImageDrawable(null);
+                if ((bitmapCroppedFace = imageFaceAndMaskDetection.getBitmapOfDetectedFace()) != null) {
+
+                    faceImageView.setImageBitmap(bitmapCroppedFace);
+                    //statusTextView.setText( "Title: " + imageFaceAndMaskDetection.getClassifierRecognition().getTitle() + " , " + imageFaceAndMaskDetection.getClassifierRecognition().getConfidence());
+                    statusTextView.setText(imageFaceAndMaskDetection.getClassifierRecognition().toString());
+
+                    //imageFaceAndMaskDetection.FinishDetectingImage();
+                } else {
+                    faceImageView.setImageDrawable(null);
+                }
+                frameSkipperLastMS = start;
+
             }
-            frameSkipperLastMS = start;
-            Log.v(TAG, "onSurfaceTextureUpdated() run face detect ");
+            else {
+                Log.v(TAG, "onSurfaceTextureUpdated() STILL BUSY PROCESSING PREVIOUS DETECTION ");
+            }
         }
+        */
 
 
     }
@@ -250,7 +303,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     }
 
 
-    public Classifier.Recognition RunLiveFaceDetect() {
+    public Classifier.Recognition RunLiveFaceDetect2() {
         String errorString = "";
         boolean gotError = false;
         Size size;
@@ -265,7 +318,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
             if (maskDetector != null) {
 
                 //find face
-                if ((bitmapCroppedFace = findFace(bitmap)) != null) {
+                if ((bitmapCroppedFace = findFace2(bitmap)) != null) {
 
                     //tricked resized image for width and height
                     //                   ((ImageView) findViewById(R.id.FaceImageView)).setImageBitmap(bitmapCroppedFace);
@@ -296,7 +349,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     }
 
 
-    private Bitmap findFace(Bitmap snapshotFromCameraBitmap) {
+    private Bitmap findFace2(Bitmap snapshotFromCameraBitmap) {
         Vector<Box> boxes1 = new Vector<>();
         Bitmap bitmapCroppedToFace;
 
@@ -401,32 +454,5 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     }
 
     //https://android-developers.googleblog.com/2009/05/painless-threading.html
-    private void runLiveFaceDetectInBackground() {
-    new Thread(new Runnable() {
-        @Override
-        public void run() {
-            //do something
-            Classifier.Recognition classifierRecognition;
 
-            ImageView imageView = (ImageView) findViewById(R.id.FaceImageView);
-
-            classifierRecognition = RunLiveFaceDetect();
-            // Update the progress bar and display the
-            //current value in the text view
-            if (bitmapCroppedFace != null) {
-
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        // Stuff that updates the UI
-                        imageView.setImageBitmap(bitmapCroppedFace);
-                    }
-                });
-            }
-        } // run()
-    }).start();
-
-}
 }

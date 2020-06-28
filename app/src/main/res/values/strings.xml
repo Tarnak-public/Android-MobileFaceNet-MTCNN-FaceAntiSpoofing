@@ -25,6 +25,7 @@
     <string name="statusFacemaskTextView">Status:</string>
     <string name="LiveCameraFaceMaskTextureViewActivity">LiveCameraFaceMaskTextureViewActivity</string>
     <string name="faceimage">TODO</string>
+    <string name="contour">contour</string>
 
 
 </resources>

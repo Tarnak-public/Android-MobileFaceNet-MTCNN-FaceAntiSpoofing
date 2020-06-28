@@ -40,7 +40,7 @@ import static com.zwp.mobilefacenet.utils.PermissionHelper.requestWriteStoragePe
 /*
 Z domu:
 
-F:\AndroidSDK\platform-tools\adb.exe connect 192.168.1.8:5555
+F:\AndroidSDK\platform-tools\adb.exe connect 192.168.1.11:5555
  */
 public class MainActivity extends AppCompatActivity {
 
