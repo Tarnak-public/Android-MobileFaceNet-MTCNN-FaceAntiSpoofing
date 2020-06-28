@@ -109,6 +109,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
                             @Override
                             public void run() {
                                 faceImageView.setImageBitmap(bitmapOfDetectedFace);
+                                //((ImageView) findViewById(R.id.countourimage)).invalidate();
                             }
                         });
                     }
