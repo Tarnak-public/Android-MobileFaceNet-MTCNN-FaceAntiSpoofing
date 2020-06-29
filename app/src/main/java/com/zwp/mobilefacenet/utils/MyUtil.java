@@ -38,7 +38,7 @@ public class MyUtil {
 
 
     /**
-     * 从assets中读取图片
+     * Read pictures from assets
      * @param context
      * @param filename
      * @return
@@ -58,7 +58,7 @@ public class MyUtil {
     }
 
     /**
-     * 给rect增加margin
+     * Add margin to rect
      * @param bitmap
      * @param rect
      * @param marginX
@@ -72,8 +72,8 @@ public class MyUtil {
     }
 
     /**
-     * 给rect增加margin
-     * 使用长度不变，宽度增加到和长度一样
+     * Add margin to rect
+     * Use the same length, increase the width to the same length
      * @param bitmap
      * @param rect
      */
@@ -86,7 +86,7 @@ public class MyUtil {
     }
 
     /**
-     * 加载模型文件
+     * Load the model file
      * @param assetManager
      * @param modelPath
      * @return
@@ -102,7 +102,7 @@ public class MyUtil {
     }
 
     /**
-     * 归一化图片到[-1, 1]
+     * Normalize the picture to [-1, 1]
      * @param bitmap
      * @return
      */
@@ -130,7 +130,7 @@ public class MyUtil {
     }
 
     /**
-     * 缩放图片
+     * Zoom picture
      * @param bitmap
      * @param scale
      * @return
@@ -145,7 +145,7 @@ public class MyUtil {
     }
 
     /**
-     * 图片矩阵宽高转置
+     * Image matrix width and height transpose
      * @param in
      * @return
      */
@@ -163,7 +163,7 @@ public class MyUtil {
     }
 
     /**
-     * 4维图片batch矩阵宽高转置
+     * 4D image batch matrix width and height transpose
      * @param in
      * @return
      */
@@ -184,7 +184,8 @@ public class MyUtil {
     }
 
     /**
-     * 截取box中指定的矩形框(越界要处理)，并resize到size*size大小，返回数据存放到data中。
+     * Intercept the rectangular box specified in the box (cross-border to be processed),
+     * and resize to size * size size, return the data stored in data.
      * @param bitmap
      * @param box
      * @param size
@@ -204,7 +205,7 @@ public class MyUtil {
     }
 
     /**
-     * 按照rect的大小裁剪出人脸
+     * Cut out the face according to the size of rect
      * @param bitmap
      * @param rect
      * @return
@@ -215,9 +216,9 @@ public class MyUtil {
     }
 
     /**
-     * l2范数归一化
+     * l2 norm normalizationz
      * @param embeddings
-     * @param epsilon 惩罚项
+     * @param epsilon Penalties
      * @return
      */
     public static void l2Normalize(float[][] embeddings, double epsilon) {
@@ -234,9 +235,9 @@ public class MyUtil {
     }
 
     /**
-     * 图片转为灰度图
+     * convert to grey
      * @param bitmap
-     * @return 灰度图数据
+     * @return Grayscale data
      */
     public static int[][] convertGreyImg(Bitmap bitmap) {
         int w = bitmap.getWidth();
@@ -287,9 +288,9 @@ public class MyUtil {
     }
 
     /**
-     * 设置相机显示方向
-     * @param cameraId 前或者后摄像头
-     * @param camera 相机
+     * Set camera display orientation
+     * @param cameraId Front or rear camera
+     * @param camera camera
      * @return
      */
     public static int setCameraDisplayOrientation(int cameraId, Camera camera, WindowManager windowManager) {
@@ -350,10 +351,10 @@ public class MyUtil {
 
 
     /**
-     * 获取合适的分辨率
+     * Get the right resolution
      * @param sizes Camera SupportedPreviewSizes
-     * @param w 显示界面宽
-     * @param h 显示界面高
+     * @param w Wide display interface
+     * @param h High display interface
      * @return
      */
     public  static Camera.Size getOptimalSize(@NonNull List<Camera.Size> sizes, int w, int h) {
