@@ -387,10 +387,17 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     private void startPreview_newway() {
 //---------------testing this-----------
         Log.d(TAG, "startPreview_newway() ");
-        MainActivity.mCamera = Camera.open(MainActivity.CAMERA_ID);
-        Camera.Parameters parameters = MainActivity.mCamera.getParameters();
 
-        displayDegree = MyUtil.setCameraDisplayOrientation(0, MainActivity.mCamera, getWindowManager());
+        MainActivity.mCamera = Camera.open(MainActivity.CAMERA_ID);
+
+        Camera.Parameters parameters = MainActivity.mCamera.getParameters();
+        if (parameters.getSupportedFocusModes().contains(
+                Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        }
+        //was camera 0, but if MainActivity.CAMERA_ID it goes messed
+        displayDegree = MyUtil.setCameraDisplayOrientation(MainActivity.CAMERA_ID, MainActivity.mCamera, getWindowManager());
+
         // Get the right resolution
         mSize = MyUtil.getOptimalSize(parameters.getSupportedPreviewSizes(), textureView.getWidth(), textureView.getHeight());
         parameters.setPreviewSize(mSize.width, mSize.height);

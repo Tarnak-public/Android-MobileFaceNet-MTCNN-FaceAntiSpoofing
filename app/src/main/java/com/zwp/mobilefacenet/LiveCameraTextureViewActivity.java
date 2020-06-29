@@ -199,7 +199,13 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         MainActivity.mCamera = Camera.open(MainActivity.CAMERA_ID);
         Camera.Parameters parameters = MainActivity.mCamera.getParameters();
 
-        displayDegree = MyUtil.setCameraDisplayOrientation(0, MainActivity.mCamera, getWindowManager());
+        if (parameters.getSupportedFocusModes().contains(
+                Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        }
+
+//        displayDegree = MyUtil.setCameraDisplayOrientation(0, MainActivity.mCamera, getWindowManager());
+        displayDegree = MyUtil.setCameraDisplayOrientation(MainActivity.CAMERA_ID, MainActivity.mCamera, getWindowManager());
         // 获取合适的分辨率
         mSize = MyUtil.getOptimalSize(parameters.getSupportedPreviewSizes(), textureView.getWidth(), textureView.getHeight());
         parameters.setPreviewSize(mSize.width, mSize.height);

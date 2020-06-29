@@ -186,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                     int[] count2 = classifier.interpreter.getOutputTensor(0).shape(); //0,1
                     int returned = classifier.classify(faceCroppedBmp); //0 = no mask, 1 = mask
 
+                    Toast.makeText(MainActivity.appContext, "Classifier:[" + returned + "] "+ (returned == 0 ? "No mask" : "mask") + "this.", Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
