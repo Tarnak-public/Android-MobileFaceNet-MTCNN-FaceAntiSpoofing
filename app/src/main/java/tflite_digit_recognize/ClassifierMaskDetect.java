@@ -24,23 +24,24 @@ public class ClassifierMaskDetect {
     private static final String MODEL_PATH = "converted_model_piotr.tflite";
 
     // TensorFlow Lite interpreter for running inference with the tflite model
-    private final Interpreter interpreter;
+    public final Interpreter interpreter;
 
     /* Input */
     // A ByteBuffer to hold image data for input to model
     private final ByteBuffer inputImage;
-
-    private final int[] imagePixels = new int[DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y];
-
     // Input size
     private static final int DIM_BATCH_SIZE = 1;    // batch size
     public static final int DIM_IMG_SIZE_X = 224;   // height
     public static final int DIM_IMG_SIZE_Y = 224;   // width
-    private static final int DIM_PIXEL_SIZE = 1;    // 1 for gray scale & 3 for color images
+    private static final int DIM_PIXEL_SIZE = 3;    // 1 for gray scale & 3 for color images
+
+    private final int[] imagePixels = new int[DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y];
+
+
 
     /* Output*/
     // Output size is 10 (number of digits)
-    private static final int DIGITS = 10;
+    private static final int DIGITS = 2; //org was 10
 
     // Output array [batch_size, number of digits]
     // 10 floats, each corresponds to the probability of each digit

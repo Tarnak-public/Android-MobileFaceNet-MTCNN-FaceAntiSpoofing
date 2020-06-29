@@ -1,3 +1,9 @@
+/*
+Z domu:
+
+F:\AndroidSDK\platform-tools\adb.exe connect 192.168.1.11:5555
+ */
+
 package com.zwp.mobilefacenet;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,11 +48,7 @@ import static com.zwp.mobilefacenet.utils.PermissionHelper.requestWriteStoragePe
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 import org.tensorflow.lite.examples.detection.tflite.TFLiteObjectDetectionAPIModel;
 import  org.tensorflow.lite.examples.detection.tflite.TestModelFromKerasFMask;
-/*
-Z domu:
 
-F:\AndroidSDK\platform-tools\adb.exe connect 192.168.1.11:5555
- */
 public class MainActivity extends AppCompatActivity {
 
     // Face Mask
@@ -144,8 +146,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //antiSpoofing();
 
-                Bitmap faceBmp = Bitmap.createBitmap(TF_OD_API_INPUT_SIZE, TF_OD_API_INPUT_SIZE, Bitmap.Config.ARGB_8888);
-                final Canvas cvFace = new Canvas(faceBmp);
+                Bitmap faceCroppedBmp = Bitmap.createBitmap(TF_OD_API_INPUT_SIZE, TF_OD_API_INPUT_SIZE, Bitmap.Config.ARGB_8888);
+                final Canvas cvFace = new Canvas(faceCroppedBmp);
                 final RectF boundingBox = new RectF(0, 0, bitmapCrop1ForFaceMask.getWidth(), bitmapCrop1ForFaceMask.getHeight());
                 RectF faceBB = new RectF(boundingBox);
 
@@ -178,7 +180,12 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     tflite_digit_recognize.ClassifierMaskDetect classifier = new tflite_digit_recognize.ClassifierMaskDetect(MainActivity.this);
-                    classifier.classify(faceBmp);
+
+                    //classifier.interpreter.
+                    int[] count = classifier.interpreter.getInputTensor(0).shape(); //1,224,224,3
+                    int[] count2 = classifier.interpreter.getOutputTensor(0).shape(); //0,1
+                    int returned = classifier.classify(faceCroppedBmp); //0 = no mask, 1 = mask
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
