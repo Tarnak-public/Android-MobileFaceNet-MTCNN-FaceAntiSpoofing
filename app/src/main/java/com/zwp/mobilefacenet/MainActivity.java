@@ -36,7 +36,9 @@ import java.util.Vector;
 
 import static com.zwp.mobilefacenet.utils.PermissionHelper.requestWriteStoragePermission;
 
-
+import org.tensorflow.lite.examples.detection.tflite.Classifier;
+import org.tensorflow.lite.examples.detection.tflite.TFLiteObjectDetectionAPIModel;
+import  org.tensorflow.lite.examples.detection.tflite.TestModelFromKerasFMask;
 /*
 Z domu:
 
@@ -44,8 +46,25 @@ F:\AndroidSDK\platform-tools\adb.exe connect 192.168.1.11:5555
  */
 public class MainActivity extends AppCompatActivity {
 
+    // Face Mask
+    private static final int TF_OD_API_INPUT_SIZE = 224;
+
+    //https://pytorch.org/docs/stable/quantization.html
+    //https://towardsdatascience.com/a-tale-of-model-quantization-in-tf-lite-aebe09f255ca
+    private static final boolean TF_OD_API_IS_QUANTIZED = false;
+    private static final String TF_OD_API_MODEL_FILE = "converted_model_piotr.tflite";
+    private static final String TF_OD_API_LABELS_FILE = "mask_labelmap.txt";
+
+   // private static final MaskDetector.DetectorMode MODE = MaskDetector.DetectorMode.TF_OD_API;
+    // Minimum detection confidence to track a detection.
+    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
+    private static final boolean MAINTAIN_ASPECT = false;
+
+    //actual level of threshold
+    private static float CONFIDENCE_LEVEL_TRESHOLD = 0.6f;
+    //----------------------------------------------
     public static final int IMAGE_FORMAT = ImageFormat.NV21;
-    public static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;//Camera.CameraInfo.CAMERA_FACING_FRONT;
+    public static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//Camera.CameraInfo.CAMERA_FACING_FRONT;
     public static Camera mCamera;
 
     public static final String TAG = "";
@@ -113,13 +132,31 @@ public class MainActivity extends AppCompatActivity {
         cropBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 faceCrop();
             }
         });
         deSpoofingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                antiSpoofing();
+                //antiSpoofing();
+                Classifier detector = null;
+
+                try {
+                    detector =
+                            TestModelFromKerasFMask.create(
+                                    getAssets(),
+                                    TF_OD_API_MODEL_FILE,
+                                    TF_OD_API_LABELS_FILE,
+                                    TF_OD_API_INPUT_SIZE,
+                                    TF_OD_API_IS_QUANTIZED);
+
+                    final List<Classifier.Recognition> resultsAux = detector.recognizeImage(bitmapCrop1ForFaceMask);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
         compareBtn.setOnClickListener(new View.OnClickListener() {

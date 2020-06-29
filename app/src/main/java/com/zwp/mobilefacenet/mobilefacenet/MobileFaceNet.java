@@ -10,7 +10,7 @@ import org.tensorflow.lite.Interpreter;
 import java.io.IOException;
 
 /**
- * 人脸比对
+ *
  */
 public class MobileFaceNet {
     private static final String MODEL_FILE = "MobileFaceNet.tflite";
