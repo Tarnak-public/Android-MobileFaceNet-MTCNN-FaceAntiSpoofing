@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
+import android.graphics.Canvas;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -140,6 +143,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //antiSpoofing();
+
+                Bitmap faceBmp = Bitmap.createBitmap(TF_OD_API_INPUT_SIZE, TF_OD_API_INPUT_SIZE, Bitmap.Config.ARGB_8888);
+                final Canvas cvFace = new Canvas(faceBmp);
+                final RectF boundingBox = new RectF(0, 0, bitmapCrop1ForFaceMask.getWidth(), bitmapCrop1ForFaceMask.getHeight());
+                RectF faceBB = new RectF(boundingBox);
+
+                float sx = ((float) TF_OD_API_INPUT_SIZE) / faceBB.width();
+                float sy = ((float) TF_OD_API_INPUT_SIZE) / faceBB.height();
+                Matrix matrix = new Matrix();
+                matrix.postTranslate(-faceBB.left, -faceBB.top);
+                matrix.postScale(sx, sy);
+                cvFace.drawBitmap(bitmapCrop1ForFaceMask, matrix, null);
+
+
+/*
                 Classifier detector = null;
 
                 try {
@@ -153,6 +171,14 @@ public class MainActivity extends AppCompatActivity {
 
                     final List<Classifier.Recognition> resultsAux = detector.recognizeImage(bitmapCrop1ForFaceMask);
 
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+*/
+
+                try {
+                    tflite_digit_recognize.ClassifierMaskDetect classifier = new tflite_digit_recognize.ClassifierMaskDetect(MainActivity.this);
+                    classifier.classify(faceBmp);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
