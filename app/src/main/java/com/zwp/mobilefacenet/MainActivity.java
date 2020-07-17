@@ -10,8 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
@@ -39,6 +41,7 @@ import com.zwp.mobilefacenet.utils.MyUtil;
 import softkom.com.classes.MaskDetector;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private static float CONFIDENCE_LEVEL_TRESHOLD = 0.6f;
     //----------------------------------------------
     public static final int IMAGE_FORMAT = ImageFormat.NV21;
-    public static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//Camera.CameraInfo.CAMERA_FACING_FRONT;
+    public static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;//Camera.CameraInfo.CAMERA_FACING_FRONT;
     public static Camera mCamera;
 
     public static final String TAG = "";
@@ -134,6 +137,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         initCamera();
+
+        imageViewCrop1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+            }
+        });
+
         cropBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 */
 
+
                 try {
                     tflite_digit_recognize.ClassifierMaskDetect classifier = new tflite_digit_recognize.ClassifierMaskDetect(MainActivity.this);
 
@@ -186,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                     int[] count2 = classifier.interpreter.getOutputTensor(0).shape(); //0,1
                     int returned = classifier.classify(faceCroppedBmp); //0 = no mask, 1 = mask
 
-                    Toast.makeText(MainActivity.appContext, "Classifier:[" + returned + "] "+ (returned == 0 ? "No mask" : "mask") + "this.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.appContext, "Classifier:[" + returned + "] "+ (returned != 0 ? "mask" : "No mask") + " result with.", Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -255,6 +268,13 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmapTemp1 = bitmap1.copy(bitmap1.getConfig(), true);
         Bitmap bitmapTemp2 = bitmap2.copy(bitmap1.getConfig(), true);
+
+        //*********** temporary ********
+
+        //bitmapTemp1 = MyUtil.readFromAssets(this,"170713.jpg");
+        //bitmapTemp1 = MyUtil.readFromAssets(this,"NO_MASK_99_170814.jpg");
+        bitmapTemp1 = MyUtil.readFromAssets(this,"170726.jpg");
+        //*********** temporary ********
 
         //https://towardsdatascience.com/mtcnn-face-detection-cdcb20448ce0
         //landmarks

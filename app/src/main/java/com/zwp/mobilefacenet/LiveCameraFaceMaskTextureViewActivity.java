@@ -19,9 +19,10 @@ package com.zwp.mobilefacenet;
 
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -44,12 +45,14 @@ import com.zwp.mobilefacenet.mtcnn.Box;
 import com.zwp.mobilefacenet.utils.MyUtil;
 import com.zwp.mobilefacenet.utils.PermissionHelper;
 
-import softkom.com.classes.ImageFaceAndMaskDetection;
-import softkom.com.classes.MaskDetector;
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Vector;
+
+import softkom.com.classes.ImageFaceAndMaskDetection;
+import softkom.com.classes.MaskDetector;
 
 //import android.support.annotation.NonNull;
 
@@ -60,26 +63,25 @@ import java.util.Vector;
  */
 public class LiveCameraFaceMaskTextureViewActivity extends Activity implements TextureView.SurfaceTextureListener {
     private final String TAG = "LiveCameraTViewActivity";
-
-
-    private SurfaceTexture mSurfaceTexture;
-    private TextView statusTextView;
     TextureView textureView;
     ImageView faceImageView;
-
-    private int displayDegree;
-    private byte[] mData;
-    private Camera.Size mSize;
     Bitmap bitmap;
     Bitmap bitmapCroppedFace;
     long start = System.currentTimeMillis();
     long end = System.currentTimeMillis();
-
     MaskDetector maskDetector = null;
-
     ImageFaceAndMaskDetection imageFaceAndMaskDetection;
+    private SurfaceTexture mSurfaceTexture;
+    private TextView statusTextView;
+    private int displayDegree;
+    private byte[] mData;
+    private Camera.Size mSize;
 
 //    Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
+    //    static int frameSkipperEnd  = 2;
+//    static int frameSkipperCounter = frameSkipperEnd + 1;
+    private long frameSkipperInMS = 300;
+    private long frameSkipperLastMS = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +102,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
 
         imageFaceAndMaskDetection.setCustomObjectListener(new ImageFaceAndMaskDetection.DetectionPhaseListener() {
             @Override
-            public void onFaceDetected (Bitmap bitmapOfDetectedFace) {
+            public void onFaceDetected(Bitmap bitmapOfDetectedFace) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -120,7 +122,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
             public void onResultOfDetection(Classifier.Recognition classRecognition) {
                 //imageFaceAndMaskDetection.getClassifierRecognition()
 
-                if(classRecognition != null) {
+                if (classRecognition != null) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -168,7 +170,6 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
 
     }
 
-
     /*
        Fix for back camera treated as front and do Mirroring
     */
@@ -207,11 +208,6 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         return true;
     }
 
-    //    static int frameSkipperEnd  = 2;
-//    static int frameSkipperCounter = frameSkipperEnd + 1;
-    private long frameSkipperInMS = 300;
-    private long frameSkipperLastMS = 0;
-
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // Invoked every time there's a new Camera preview frame
@@ -225,30 +221,22 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         Log.v(TAG, "onSurfaceTextureUpdated() occured time:" + start + " bitmap:" + bitmap);
         Log.v(TAG, "onSurfaceTextureUpdated() actual ms difference " + (start - frameSkipperLastMS) + " , frame skip threshold:" + frameSkipperInMS);
 
-            Log.v(TAG, "onSurfaceTextureUpdated() START FACE AND MASK DETECTION ");
-            if( imageFaceAndMaskDetection.isStillProcessing() == false) {
+        Log.v(TAG, "onSurfaceTextureUpdated() START FACE AND MASK DETECTION ");
+        if (imageFaceAndMaskDetection.isStillProcessing() == false) {
 
-                Log.v(TAG, "onSurfaceTextureUpdated() RUNNING FACE AND MASK ");
+            Log.v(TAG, "onSurfaceTextureUpdated() RUNNING FACE AND MASK ");
+/*
+            //*********** temporary ********
+            bitmapTemp1 = MyUtil.readFromAssets(this,"NO_MASK_99_170814.jpg");
+            ((ImageView)(findViewById(R.id.FaceImageView))).setImageBitmap(bitmap);
+            //*********** temporary ********
+*/
+            imageFaceAndMaskDetection.DetectFromImage(bitmap);
 
-                imageFaceAndMaskDetection.DetectFromImage(bitmap);
 
-                /* this is not thread safe
-                if ((bitmapCroppedFace = imageFaceAndMaskDetection.getBitmapOfDetectedFace()) != null) {
-
-                    faceImageView.setImageBitmap(bitmapCroppedFace);
-                    //statusTextView.setText( "Title: " + imageFaceAndMaskDetection.getClassifierRecognition().getTitle() + " , " + imageFaceAndMaskDetection.getClassifierRecognition().getConfidence());
-                    statusTextView.setText(imageFaceAndMaskDetection.getClassifierRecognition().toString());
-
-                    //imageFaceAndMaskDetection.FinishDetectingImage();
-                } else {
-                    faceImageView.setImageDrawable(null);
-                }
-                */
-
-            }
-            else {
-                Log.v(TAG, "onSurfaceTextureUpdated() STILL BUSY PROCESSING PREVIOUS DETECTION ");
-            }
+        } else {
+            Log.v(TAG, "onSurfaceTextureUpdated() STILL BUSY PROCESSING PREVIOUS DETECTION ");
+        }
 
         /*
         //static frame skipper implementation, still ui thread, drama
@@ -314,7 +302,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
             //try actions on this bitmap
 
 //            if (maskDetector == null)
-                maskDetector = new MaskDetector();
+            maskDetector = new MaskDetector();
 
             if (maskDetector != null) {
 
@@ -325,6 +313,8 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
                     //                   ((ImageView) findViewById(R.id.FaceImageView)).setImageBitmap(bitmapCroppedFace);
 
                     size = new Size(bitmapCroppedFace.getWidth(), bitmapCroppedFace.getHeight());
+
+
 
                     //for portrait mode:
                     // I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
@@ -337,7 +327,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
                 }
 
             } else
-            errorString = "Init MaskDetector failed somehow";
+                errorString = "Init MaskDetector failed somehow";
         } else
             errorString = "No bitmap face provided";
 
@@ -346,7 +336,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
             Toast.makeText(MainActivity.appContext, errorString, Toast.LENGTH_LONG).show();
         }
 
-    return classifierRecognition;
+        return classifierRecognition;
     }
 
 
