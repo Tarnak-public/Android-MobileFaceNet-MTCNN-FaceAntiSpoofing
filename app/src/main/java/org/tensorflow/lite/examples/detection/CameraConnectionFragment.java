@@ -53,7 +53,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.zwp.mobilefacenet.R;
+import com.inex.mobilefacenet.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;

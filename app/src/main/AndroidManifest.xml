@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zwp.mobilefacenet">
+    package="com.inex.mobilefacenet">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
@@ -30,15 +30,15 @@
             android:value="barcode,face,ocr,ica"/>
 
         <activity
-            android:name=".LiveCameraTextureViewActivity"
+            android:name="com.inex.mobilefacenet.LiveCameraTextureViewActivity"
             android:label="@string/title_activity_live_camera_texture_view"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".LiveCameraFaceMaskTextureViewActivity"
+            android:name="com.inex.mobilefacenet.LiveCameraFaceMaskTextureViewActivity"
             android:label="@string/LiveCameraFaceMaskTextureViewActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.inex.mobilefacenet.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -48,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CameraActivity"
+            android:name="com.inex.mobilefacenet.CameraActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
         <activity

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MobileFaceNet</string>
+    <string name="app_name">Model FaceNet</string>
     <string name="title_activity_live_camera_texture_view">LiveCameraTextureViewActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

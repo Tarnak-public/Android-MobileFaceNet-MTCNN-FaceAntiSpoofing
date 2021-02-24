@@ -31,7 +31,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.zwp.mobilefacenet.R;
+import com.inex.mobilefacenet.R;
 
 import java.io.IOException;
 import java.util.List;

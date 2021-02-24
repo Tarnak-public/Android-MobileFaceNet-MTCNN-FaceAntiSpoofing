@@ -19,16 +19,13 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.os.Environment;
 import android.util.Log;
 
-import com.zwp.mobilefacenet.MainActivity;
+import com.inex.mobilefacenet.MainActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 /** Utility class for manipulating images. */
 public class ImageUtils {

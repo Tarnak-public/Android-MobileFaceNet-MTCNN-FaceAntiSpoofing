@@ -3,24 +3,12 @@ package softkom.com.classes;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.hardware.Camera;
-import android.icu.util.Output;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
 import android.util.Size;
-import android.view.Display;
-import android.view.Surface;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.zwp.mobilefacenet.MainActivity;
-import com.zwp.mobilefacenet.R;
-import com.zwp.mobilefacenet.mtcnn.Box;
-import com.zwp.mobilefacenet.mtcnn.MTCNN;
-import com.zwp.mobilefacenet.utils.MyUtil;
+import com.inex.mobilefacenet.mtcnn.Box;
+import com.inex.mobilefacenet.mtcnn.MTCNN;
+import com.inex.mobilefacenet.utils.MyUtil;
 
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
@@ -48,7 +36,7 @@ public class FaceDetection {
   //      maskDetector = new MaskDetector();
 
         try {
-            mtcnn = new com.zwp.mobilefacenet.mtcnn.MTCNN(appContext.getAssets());
+            mtcnn = new com.inex.mobilefacenet.mtcnn.MTCNN(appContext.getAssets());
         } catch (IOException e) {
             e.printStackTrace();
             EndFaceDetect();

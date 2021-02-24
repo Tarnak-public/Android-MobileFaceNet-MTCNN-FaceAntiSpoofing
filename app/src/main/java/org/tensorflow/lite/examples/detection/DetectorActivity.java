@@ -37,7 +37,6 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.params.Face;
 import android.media.FaceDetector;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Build;
@@ -48,7 +47,7 @@ import android.util.TypedValue;
 import android.widget.Toast;
 
 //import com.google.android.gms.tasks.OnSuccessListener;
-import com.zwp.mobilefacenet.R;
+import com.inex.mobilefacenet.R;
 /*
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
@@ -62,8 +61,6 @@ import com.google.mlkit.vision.face.FaceDetectorOptions;
 import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
-import java.sql.Ref;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.tensorflow.lite.examples.detection.customview.OverlayView;

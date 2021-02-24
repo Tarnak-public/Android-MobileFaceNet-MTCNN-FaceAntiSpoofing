@@ -1,18 +1,12 @@
 package tflite_digit_recognize;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 //import android.support.annotation.Nullable;
 //import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.zwp.mobilefacenet.R;
-
-import java.io.IOException;
 
 /**
  * Margaret Maynard-Reid
