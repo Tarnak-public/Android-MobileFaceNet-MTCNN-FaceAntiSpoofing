@@ -82,9 +82,8 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
         faceImageView = findViewById(R.id.FaceImageView);
         textureView.setSurfaceTextureListener(this);
 
-        applyMirroringOnCamera(textureView);
-
-        imageFaceAndMaskDetection = new ImageFaceAndMaskDetection();
+//        applyMirroringOnCamera(textureView);
+        imageFaceAndMaskDetection = new ImageFaceAndMaskDetection(false);
         imageFaceAndMaskDetection.setCustomObjectListener(new ImageFaceAndMaskDetection.DetectionPhaseListener() {
             @Override
             public void onFaceDetected(Bitmap bitmapOfDetectedFace) {
@@ -109,41 +108,6 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
                 }
             }
         });
-/*
-        Button button = findViewById(R.id.TakePictureButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // Because the photo is too large, it cannot be passed back using Intent. For simplicity, static variables are used.// It is recommended to save it to a file in your own project.
-
-                Log.d(TAG, "onListener() TakePictureButton()");
-                //MyUtil.convertBitmap() time elapsed 566ms
-                start = System.currentTimeMillis();
-                //bitmap = MyUtil.convertBitmap(mData, mCamera, displayDegree);
-                end = System.currentTimeMillis();
-
-                Log.d(TAG, "MyUtil.convertBitmap() time elapsed " + (end - start) + "ms");
-
-                //here this is working but need to swap mirroring
-                //textureView.getBitmap() time elapsed 47
-                start = System.currentTimeMillis();
-                //bitmap = textureView.getBitmap();
-                end = System.currentTimeMillis();
-
-                Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
-
-                MainActivity.currentBtn.setImageBitmap(bitmap);
-                if (MainActivity.currentBtn.getId() == R.id.image_button1) {
-                    MainActivity.bitmap1 = bitmap;
-                } else {
-                    MainActivity.bitmap2 = bitmap;
-                }
-                finish();
-            }
-        });
-        */
-
     }
 
     @Override
@@ -220,12 +184,12 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity implements T
     }
 
     private void startPreview() {
-        startPreview_newway();
+        startPreviewNewSingle();
     }
 
-    private void startPreview_newway() {
+    private void startPreviewNewSingle() {
 //---------------testing this-----------
-        Log.d(TAG, "startPreview_newway() ");
+        Log.d(TAG, "startPreviewNewSingle() ");
         MainActivity.mCamera = Camera.open(MainActivity.CAMERA_ID);
         Camera.Parameters parameters = MainActivity.mCamera.getParameters();
         if (parameters.getSupportedFocusModes().contains(

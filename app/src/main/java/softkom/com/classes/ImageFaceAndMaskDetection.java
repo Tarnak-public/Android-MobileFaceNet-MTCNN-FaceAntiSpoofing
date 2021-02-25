@@ -25,12 +25,18 @@ public class ImageFaceAndMaskDetection {
     private Bitmap bitmapForFaceFind = null;
     private Classifier.Recognition classifierRecognition = null;
 
+    public ImageFaceAndMaskDetection(boolean enableMaskDetector) {
+        faceDetection = new FaceDetection(MainActivity.appContext);
+        if (enableMaskDetector)
+            maskDetector = new MaskDetector();
+        else
+            maskDetector = null;
+
+        this.listener = null;
+    }
 
     public ImageFaceAndMaskDetection() {
-        faceDetection = new FaceDetection(MainActivity.appContext);
-        maskDetector = new MaskDetector();
-        // set null or default listener or accept as argument to constructor
-        this.listener = null;
+        this(true);
     }
 
     public Bitmap getBitmapOfDetectedFace() {
@@ -77,10 +83,12 @@ public class ImageFaceAndMaskDetection {
             if (listener != null)
                 listener.onFaceDetected(bitmapWithCroppedFace);
 
-            size = new Size(bitmapWithCroppedFace.getWidth(), bitmapWithCroppedFace.getHeight());
-            //for portrait mode: I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
-            if ((maskDetector.InitMaskDetector(MainActivity.appContext, MainActivity.appContext.getAssets(), size, 0, 180, 0))) {
-                classifierRecognition = maskDetector.processImage(bitmapWithCroppedFace);
+            if (maskDetector != null) {
+                size = new Size(bitmapWithCroppedFace.getWidth(), bitmapWithCroppedFace.getHeight());
+                //for portrait mode: I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
+                if ((maskDetector.InitMaskDetector(MainActivity.appContext, MainActivity.appContext.getAssets(), size, 0, 180, 0))) {
+                    classifierRecognition = maskDetector.processImage(bitmapWithCroppedFace);
+                }
             }
         } else {
             if (listener != null)
