@@ -20,18 +20,23 @@ package com.inex.mobilefacenet;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.view.TextureView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.inex.mobilefacenet.mtcnn.Box;
+import com.inex.mobilefacenet.mtcnn.Utils;
+
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
 import softkom.com.classes.AutoFitTextureView;
 import softkom.com.classes.CameraSurfaceListener;
+import softkom.com.classes.FaceClassifier;
 import softkom.com.classes.ImageFaceAndMaskDetection;
 
 //import android.support.annotation.NonNull;
@@ -46,6 +51,11 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
     CameraSurfaceListener camera0SurfaceListener;
     CameraSurfaceListener camera1SurfaceListener;
 
+    public static void drawFaceBox(Bitmap bitmap, Box box, int thick) {
+        Utils.drawRect(bitmap, box.transform2Rect(), thick);
+        Utils.drawPoints(bitmap, box.landmark, thick);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,27 +69,36 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
         AutoFitTextureView cam0TextureView = findViewById(R.id.live_cam0_TextureViewActivity);
         TextView cam0StatusTextView = findViewById(R.id.faceMask_cam0_status_textView);
         ImageView cam0FaceImageView = findViewById(R.id.face_cam0_ImageView);
+        ImageView overlay0FaceImageView = findViewById(R.id.overlay_cam0_ImageView);
 
         AutoFitTextureView cam1TextureView = findViewById(R.id.live_cam1_TextureViewActivity);
         TextView cam1StatusTextView = findViewById(R.id.faceMask_cam1_status_textView);
         ImageView cam1FaceImageView = findViewById(R.id.face_cam1_ImageView);
+        ImageView overlay1FaceImageView = findViewById(R.id.overlay_cam1_ImageView);
 
-        ImageFaceAndMaskDetection cam0Detector = camFaceDetector(cam0FaceImageView, cam0StatusTextView);
-        ImageFaceAndMaskDetection cam1Detector = camFaceDetector(cam1FaceImageView, cam1StatusTextView);
+        ImageFaceAndMaskDetection cam0Detector = camFaceDetector(cam0FaceImageView, cam0StatusTextView, cam0TextureView, overlay0FaceImageView);
+        ImageFaceAndMaskDetection cam1Detector = camFaceDetector(cam1FaceImageView, cam1StatusTextView, cam1TextureView, overlay1FaceImageView);
 
         camera0SurfaceListener = new CameraSurfaceListener(this, cam0Detector, Camera.CameraInfo.CAMERA_FACING_BACK, 270, cam0TextureView);
         camera1SurfaceListener = new CameraSurfaceListener(this, cam1Detector, Camera.CameraInfo.CAMERA_FACING_FRONT, 270, cam1TextureView);
 
-        cam0TextureView.setAspectRatio(10,13); // 2/3
-        cam1TextureView.setAspectRatio(10,13); // 2/3
+        cam0TextureView.setAspectRatio(10, 13); // 2/3
+        cam1TextureView.setAspectRatio(10, 13); // 2/3
 
         cam0TextureView.setSurfaceTextureListener(camera0SurfaceListener);
         cam1TextureView.setSurfaceTextureListener(camera1SurfaceListener);
     }
 
-    private ImageFaceAndMaskDetection camFaceDetector(ImageView camFaceImageView, TextView camStatusTextView) {
+    private ImageFaceAndMaskDetection camFaceDetector(ImageView camFaceImageView, TextView camStatusTextView, AutoFitTextureView camTextureView, ImageView overlayFaceImageView) {
         ImageFaceAndMaskDetection faceAndMaskDetection = new ImageFaceAndMaskDetection(false);
-        faceAndMaskDetection.setCustomObjectListener(new ImageFaceAndMaskDetection.DetectionPhaseListener() {
+        //        regularListenerBitmap(camFaceImageView, camStatusTextView, faceAndMaskDetection);
+        classifierListenerBitmap(camFaceImageView, camStatusTextView, faceAndMaskDetection, camTextureView, overlayFaceImageView);
+
+        return faceAndMaskDetection;
+    }
+
+    private void regularListenerBitmap(ImageView camFaceImageView, TextView camStatusTextView, ImageFaceAndMaskDetection faceAndMaskDetection, AutoFitTextureView camTextureView) {
+        faceAndMaskDetection.setDetectionListener(new ImageFaceAndMaskDetection.DetectionListener() {
             @Override
             public void onFaceDetected(Bitmap bitmapOfDetectedFace) {
                 runOnUiThread(() -> runOnUiThread(() -> camFaceImageView.setImageBitmap(bitmapOfDetectedFace)));
@@ -100,6 +119,46 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
                 }
             }
         });
-        return faceAndMaskDetection;
+    }
+
+    private void classifierListenerBitmap(ImageView camFaceImageView, TextView camStatusTextView, ImageFaceAndMaskDetection faceAndMaskDetection, AutoFitTextureView camTextureView, ImageView overlayFaceImageView) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.RED);
+        paint.setStrokeWidth(10f);
+
+        faceAndMaskDetection.setDetectionListenerFaceClassifier(new ImageFaceAndMaskDetection.DetectionListenerFaceClassifier() {
+            @Override
+            public void onFaceDetected(FaceClassifier faceClassifier) {
+//                Log.d("DetectFaceWithClassifier", "camTextureView dimensions:" + camTextureView.getWidth() + " x " + camTextureView.getHeight() +
+//                        " , overlay1FaceImageView dimensions:" + overlayFaceImageView.getWidth() + " x " + overlayFaceImageView.getHeight()
+//                );
+
+                Bitmap finalOverlay = Bitmap.createBitmap(overlayFaceImageView.getWidth(), overlayFaceImageView.getHeight(), Bitmap.Config.ARGB_8888);
+                drawFaceBox(finalOverlay, faceClassifier.boxes1.get(0), 3);
+                runOnUiThread(() -> runOnUiThread(() -> {
+                            overlayFaceImageView.setImageBitmap(finalOverlay);
+                            camFaceImageView.setImageBitmap(faceClassifier.faceBitmap);
+                        }
+                ));
+            }
+
+            @Override
+            public void onNoFaceDetected(FaceClassifier faceClassifier) {
+                runOnUiThread(() -> runOnUiThread(() -> {
+                    overlayFaceImageView.setImageBitmap(null);
+                    camFaceImageView.setImageResource(R.drawable.no_face);
+                }));
+            }
+
+            @Override
+            public void onResultOfMaskDetection(FaceClassifier faceClassifier) {
+                runOnUiThread(() -> {
+                    camStatusTextView.setTextColor(faceClassifier.classifierRecognition.getColor());
+                    camStatusTextView.setText(faceClassifier.classifierRecognition.toString());
+                });
+            }
+        });
     }
 }

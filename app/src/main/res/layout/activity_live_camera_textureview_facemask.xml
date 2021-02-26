@@ -18,6 +18,13 @@
             tools:context=".LiveCameraFaceMaskTextureViewActivity" />
 
         <ImageView
+            android:id="@+id/overlay_cam1_ImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="false"
+            android:contentDescription="@string/nothing" />
+
+        <ImageView
             android:id="@+id/face_cam1_ImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,6 +52,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:context=".LiveCameraFaceMaskTextureViewActivity" />
+
+        <ImageView
+            android:id="@+id/overlay_cam0_ImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/nothing" />
 
         <ImageView
             android:id="@+id/face_cam0_ImageView"

@@ -20,7 +20,9 @@ public class ImageFaceAndMaskDetection {
     MaskDetector maskDetector = null;
     FaceDetection faceDetection = null;
     Size size;
-    private DetectionPhaseListener listener;
+    private DetectionListener detectionListener;
+    private DetectionListenerFaceClassifier detectionListenerFaceClassifier;
+
     private Bitmap bitmapWithCroppedFace = null;
     private Bitmap bitmapForFaceFind = null;
     private Classifier.Recognition classifierRecognition = null;
@@ -32,7 +34,7 @@ public class ImageFaceAndMaskDetection {
         else
             maskDetector = null;
 
-        this.listener = null;
+        this.detectionListener = null;
     }
 
     public ImageFaceAndMaskDetection() {
@@ -48,8 +50,12 @@ public class ImageFaceAndMaskDetection {
     }
 
     // Assign the listener implementing events interface that will receive the events
-    public void setCustomObjectListener(DetectionPhaseListener listener) {
-        this.listener = listener;
+    public void setDetectionListener(DetectionListener listener) {
+        this.detectionListener = listener;
+    }
+
+    public void setDetectionListenerFaceClassifier(DetectionListenerFaceClassifier listener) {
+        this.detectionListenerFaceClassifier = listener;
     }
 
     //http://www.android4devs.pl/2011/08/asynctask-asynchroniczne-wykonywanie-czasochlonnych-zadan/
@@ -59,37 +65,60 @@ public class ImageFaceAndMaskDetection {
     }
 
     private boolean DetectFromImageAsync(Bitmap imageToDetect) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long startMeasurement = System.currentTimeMillis(), endMeasurement = 0;
-                StillProcessing = true;
+        new Thread(() -> {
+            long startMeasurement = System.currentTimeMillis(), endMeasurement = 0;
+            StillProcessing = true;
+
+            if (detectionListener == null)
+                detectFromImageFaceClassifier(bitmapForFaceFind);
+            else
                 detectFromImageInternal(bitmapForFaceFind);
-                StillProcessing = false;
-                endMeasurement = System.currentTimeMillis();
-                Log.v("ImageFaceAndMaskDetection()", "DetectFromImageAsync() Processing image took: " + (endMeasurement - startMeasurement) + "ms");
-            }
+
+            StillProcessing = false;
+            endMeasurement = System.currentTimeMillis();
+            Log.v("ImageFaceAndMaskDetection()", "DetectFromImageAsync() Processing image took: " + (endMeasurement - startMeasurement) + "ms");
         }).start();
         return true;
     }
 
     private void detectFromImageInternal(Bitmap imageToDetect) {
         //copy image to be safe that will be not changed
-        bitmapForFaceFind = Bitmap.createBitmap(imageToDetect);
-        //use as is, will be changed meantime?
-        //bitmapForFaceFind = imageToDetect;
+//        bitmapForFaceFind = Bitmap.createBitmap(imageToDetect);
+
+        if (detectionListener == null)
+            return;
+
+        bitmapForFaceFind = imageToDetect;
         bitmapWithCroppedFace = faceDetection.DetectFace(bitmapForFaceFind);
         if (bitmapWithCroppedFace != null) {
-            if (listener != null)
-                listener.onFaceDetected(bitmapWithCroppedFace);
-
+            detectionListener.onFaceDetected(bitmapWithCroppedFace);
             if (maskDetector != null) {
                 classifierRecognition = detectMaskInBitmap();
-                listener.onResultOfMaskDetection(classifierRecognition);
+                detectionListener.onResultOfMaskDetection(classifierRecognition);
             }
         } else {
-            if (listener != null)
-                listener.onNoFaceDetected(imageToDetect);
+            detectionListener.onNoFaceDetected(imageToDetect);
+        }
+    }
+
+    private void detectFromImageFaceClassifier(Bitmap imageToDetect) {
+        //copy image to be safe that will be not changed
+//        bitmapForFaceFind = Bitmap.createBitmap(imageToDetect);
+        if (detectionListenerFaceClassifier == null)
+            return;
+
+        bitmapForFaceFind = imageToDetect;
+        FaceClassifier faceClassifier = faceDetection.DetectFaceWithClassifier(bitmapForFaceFind,false);
+
+        if (faceClassifier.faceDetected) {
+            detectionListenerFaceClassifier.onFaceDetected(faceClassifier);
+            if (maskDetector != null) {
+                classifierRecognition = detectMaskInBitmap();
+                faceClassifier.classifierRecognition = classifierRecognition;
+                detectionListenerFaceClassifier.onResultOfMaskDetection(faceClassifier);
+            }
+        } else {
+            detectionListenerFaceClassifier.onNoFaceDetected(faceClassifier);
         }
     }
 
@@ -111,14 +140,22 @@ public class ImageFaceAndMaskDetection {
     }
 
     // Step 1 - This interface defines the type of messages to communicate to my owner
-    public interface DetectionPhaseListener {
-        // fire when face was detected
-        public void onFaceDetected(Bitmap bitmapOfDetectedFace);
+    public interface DetectionListener {
+        void onFaceDetected(Bitmap bitmapOfDetectedFace);
 
-        public void onNoFaceDetected(Bitmap bitmapOfUndetectedFace);
+        void onNoFaceDetected(Bitmap bitmapOfUndetectedFace);
 
         // result of mask detection
-        public void onResultOfMaskDetection(Classifier.Recognition classRecognition);
+        void onResultOfMaskDetection(Classifier.Recognition classRecognition);
+    }
+
+    public interface DetectionListenerFaceClassifier {
+        void onFaceDetected(FaceClassifier faceClassifier);
+
+        void onNoFaceDetected(FaceClassifier faceClassifier);
+
+        // result of mask detection
+        void onResultOfMaskDetection(FaceClassifier faceClassifier);
     }
 }
 

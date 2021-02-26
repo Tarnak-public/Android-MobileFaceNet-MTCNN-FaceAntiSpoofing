@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.TextureView;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -13,6 +14,9 @@ public class AutoFitTextureView extends TextureView {
 
     private int mRatioWidth = 0;
     private int mRatioHeight = 0;
+
+    private int measuredWidth = 0;
+    private int measuredHeight = 0;
 
     public AutoFitTextureView(Context context) {
         this(context, null);
@@ -24,6 +28,14 @@ public class AutoFitTextureView extends TextureView {
 
     public AutoFitTextureView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    public int getRatioWidth() {
+        return mRatioWidth;
+    }
+
+    public int getRatioHeight() {
+        return mRatioHeight;
     }
 
     /**
@@ -49,14 +61,20 @@ public class AutoFitTextureView extends TextureView {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
         if (0 == mRatioWidth || 0 == mRatioHeight) {
+            measuredWidth = width;
+            measuredHeight = height;
             setMeasuredDimension(width, height);
         } else {
             if (width < height * mRatioWidth / mRatioHeight) {
-                setMeasuredDimension(width, width * mRatioHeight / mRatioWidth);
+                measuredWidth = width;
+                measuredHeight = width * mRatioHeight / mRatioWidth;
             } else {
-                setMeasuredDimension(height * mRatioWidth / mRatioHeight, height);
+                measuredWidth = height * mRatioWidth / mRatioHeight;
+                measuredHeight = height;
             }
+            setMeasuredDimension(measuredWidth, measuredHeight);
         }
+//        Log.d("DetectFaceWithClassifier", "onMeasure():" + measuredWidth + " x " + measuredHeight);
     }
 
 }
