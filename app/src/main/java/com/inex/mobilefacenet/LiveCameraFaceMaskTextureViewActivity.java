@@ -129,16 +129,24 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
         paint.setStrokeWidth(10f);
 
         faceAndMaskDetection.setDetectionListenerFaceClassifier(new ImageFaceAndMaskDetection.DetectionListenerFaceClassifier() {
+            Bitmap overlayBitmap;
+
             @Override
             public void onFaceDetected(FaceClassifier faceClassifier) {
 //                Log.d("DetectFaceWithClassifier", "camTextureView dimensions:" + camTextureView.getWidth() + " x " + camTextureView.getHeight() +
 //                        " , overlay1FaceImageView dimensions:" + overlayFaceImageView.getWidth() + " x " + overlayFaceImageView.getHeight()
 //                );
 
-                Bitmap finalOverlay = Bitmap.createBitmap(overlayFaceImageView.getWidth(), overlayFaceImageView.getHeight(), Bitmap.Config.ARGB_8888);
-                drawFaceBox(finalOverlay, faceClassifier.boxes1.get(0), 3);
+                if (overlayBitmap == null) {
+                    overlayBitmap = Bitmap.createBitmap(overlayFaceImageView.getWidth(), overlayFaceImageView.getHeight(), Bitmap.Config.ARGB_8888);
+                } else {
+                    overlayBitmap.eraseColor(Color.TRANSPARENT);
+                }
+//                Bitmap finalOverlay = Bitmap.createBitmap(overlayFaceImageView.getWidth(), overlayFaceImageView.getHeight(), Bitmap.Config.ARGB_8888);
+
+                drawFaceBox(overlayBitmap, faceClassifier.boxes1.get(0), 3);
                 runOnUiThread(() -> runOnUiThread(() -> {
-                            overlayFaceImageView.setImageBitmap(finalOverlay);
+                            overlayFaceImageView.setImageBitmap(overlayBitmap);
                             camFaceImageView.setImageBitmap(faceClassifier.faceBitmap);
                         }
                 ));
