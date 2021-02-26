@@ -26,7 +26,7 @@ public class ImageFaceAndMaskDetection {
     private Classifier.Recognition classifierRecognition = null;
 
     public ImageFaceAndMaskDetection(boolean enableMaskDetector) {
-        faceDetection = new FaceDetection(MainActivity.appContext);
+        faceDetection = new FaceDetection(MainActivity.appContext, true);
         if (enableMaskDetector)
             maskDetector = new MaskDetector();
         else
@@ -78,32 +78,36 @@ public class ImageFaceAndMaskDetection {
         bitmapForFaceFind = Bitmap.createBitmap(imageToDetect);
         //use as is, will be changed meantime?
         //bitmapForFaceFind = imageToDetect;
-        bitmapWithCroppedFace = null;
-        if ((bitmapWithCroppedFace = faceDetection.RunFaceDetect(bitmapForFaceFind)) != null) {
+        bitmapWithCroppedFace = faceDetection.DetectFace(bitmapForFaceFind);
+        if (bitmapWithCroppedFace != null) {
             if (listener != null)
                 listener.onFaceDetected(bitmapWithCroppedFace);
 
             if (maskDetector != null) {
-                size = new Size(bitmapWithCroppedFace.getWidth(), bitmapWithCroppedFace.getHeight());
-                //for portrait mode: I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
-                if ((maskDetector.InitMaskDetector(MainActivity.appContext, MainActivity.appContext.getAssets(), size, 0, 180, 0))) {
-                    classifierRecognition = maskDetector.processImage(bitmapWithCroppedFace);
-                }
+                classifierRecognition = detectMaskInBitmap();
+                listener.onResultOfMaskDetection(classifierRecognition);
             }
         } else {
             if (listener != null)
                 listener.onNoFaceDetected(imageToDetect);
         }
-        if (listener != null)
-            listener.onResultOfDetection(classifierRecognition);
+    }
+
+    private Classifier.Recognition detectMaskInBitmap() {
+        size = new Size(bitmapWithCroppedFace.getWidth(), bitmapWithCroppedFace.getHeight());
+        //for portrait mode: I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
+        if ((maskDetector.InitMaskDetector(MainActivity.appContext, MainActivity.appContext.getAssets(), size, 0, 180, 0))) {
+            return maskDetector.processImage(bitmapWithCroppedFace);
+        }
+        return null;
     }
 
     public void FinishDetectingImage() {
         maskDetector.endMaskDetector();
     }
 
-    public boolean isStillProcessing() {
-        return StillProcessing;
+    public boolean isProcessingFinished() {
+        return !StillProcessing;
     }
 
     // Step 1 - This interface defines the type of messages to communicate to my owner
@@ -113,8 +117,8 @@ public class ImageFaceAndMaskDetection {
 
         public void onNoFaceDetected(Bitmap bitmapOfUndetectedFace);
 
-        // result of detection
-        public void onResultOfDetection(Classifier.Recognition classRecognition);
+        // result of mask detection
+        public void onResultOfMaskDetection(Classifier.Recognition classRecognition);
     }
 }
 

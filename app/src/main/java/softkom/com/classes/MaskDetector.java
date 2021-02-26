@@ -291,7 +291,6 @@ public class MaskDetector {
         if(mappedRecognitions != null) {
             mappedRecognitions.clear();
         }
-
     }
 
     //got detected faces

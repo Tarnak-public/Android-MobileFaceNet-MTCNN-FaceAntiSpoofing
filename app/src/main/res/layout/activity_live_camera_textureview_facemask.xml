@@ -1,45 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-android:layout_width="match_parent"
-android:layout_height="match_parent">
-
-    <TextureView
-    android:id="@+id/LiveCameraFacemaskTextureViewActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LiveCameraFaceMaskTextureViewActivity" />
+    android:background="#000000"
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/FaceImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        tools:srcCompat="@tools:sample/avatars"
-        android:contentDescription="@string/faceimage" />
-
-    <ImageView
-        android:id="@+id/countourimage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginBottom="70dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/contour"
-        android:maxWidth="450dp"
-        android:maxHeight="450dp"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/good_contour" />
-
-    <TextView
-        android:id="@+id/FaceMaskStatus_textView"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom= "true"
-        android:text="@string/statusFacemaskTextView" />
+        android:layout_weight="1">
 
-</RelativeLayout>
+        <softkom.com.classes.AutoFitTextureView
+            android:id="@+id/live_cam1_TextureViewActivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context=".LiveCameraFaceMaskTextureViewActivity" />
+
+        <ImageView
+            android:id="@+id/face_cam1_ImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/faceimage"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/faceMask_cam1_status_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="@string/statusFacemaskTextView" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <softkom.com.classes.AutoFitTextureView
+            android:id="@+id/live_cam0_TextureViewActivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context=".LiveCameraFaceMaskTextureViewActivity" />
+
+        <ImageView
+            android:id="@+id/face_cam0_ImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/faceimage"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/faceMask_cam0_status_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="@string/statusFacemaskTextView" />
+    </RelativeLayout>
+
+</LinearLayout>

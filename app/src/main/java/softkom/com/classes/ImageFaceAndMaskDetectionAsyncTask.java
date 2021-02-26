@@ -26,7 +26,7 @@ public class ImageFaceAndMaskDetectionAsyncTask extends AsyncTask<Bitmap, Bitmap
     private Classifier.Recognition classifierRecognition = null;
 
     public ImageFaceAndMaskDetectionAsyncTask() {
-        faceDetection = new FaceDetection(MainActivity.appContext);
+        faceDetection = new FaceDetection(MainActivity.appContext,false);
         maskDetector = new MaskDetector();
     }
 
@@ -56,7 +56,7 @@ public class ImageFaceAndMaskDetectionAsyncTask extends AsyncTask<Bitmap, Bitmap
         //use as is, will be changed meantime?
         //bitmapForFaceFind = imageToDetect;
         bitmapWithCroppedFace = null;
-        if ((bitmapWithCroppedFace = faceDetection.RunFaceDetect(bitmapForFaceFind)) != null) {
+        if ((bitmapWithCroppedFace = faceDetection.DetectFace(bitmapForFaceFind)) != null) {
             size = new Size(bitmapWithCroppedFace.getWidth(), bitmapWithCroppedFace.getHeight());
             //for portrait mode: I/tensorflow: DetectorActivity: Camera orientation relative to screen canvas: 90
             if ((maskDetector.InitMaskDetector(MainActivity.appContext, MainActivity.appContext.getAssets(), size, 0, 180, 0)) == true) {

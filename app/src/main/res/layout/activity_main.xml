@@ -128,4 +128,12 @@
         android:layout_marginBottom="50dp"
         android:layout_gravity="center_horizontal"/>
 
+    <TextView
+        android:id="@+id/version_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_marginBottom="50dp"
+        android:layout_gravity="center_horizontal"/>
+
 </LinearLayout>

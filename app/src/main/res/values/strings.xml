@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Model FaceNet</string>
+    <string name="app_name">Model FaceNet and MTCNN</string>
     <string name="title_activity_live_camera_texture_view">LiveCameraTextureViewActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -22,7 +22,7 @@
     <string name="image_button">Image button</string>
     <string name="tfe_od_app_name" translation_description="Object Detection demo app [CHAR_LIMIT=40]">TFL Detect</string>
     <string name="tfe_od_camera_error" translation_description="Error regarding camera support[CHAR_LIMIT=40]">This device doesn\'t support Camera2 API.</string>
-    <string name="statusFacemaskTextView">Status:</string>
+    <string name="statusFacemaskTextView">Status: Disabled</string>
     <string name="LiveCameraFaceMaskTextureViewActivity">LiveCameraFaceMaskTextureViewActivity</string>
     <string name="faceimage">TODO</string>
     <string name="contour">contour</string>

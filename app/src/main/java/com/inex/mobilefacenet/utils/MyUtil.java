@@ -353,7 +353,7 @@ public class MyUtil {
      * @return
      */
     public static Camera.Size getOptimalSize(@NonNull List<Camera.Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.1;
+        final double ASPECT_TOLERANCE = 0.1; //1.3333
         double targetRatio = (double) h / w;
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;

@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         resultTextView = findViewById(R.id.result_text_view);
         resultTextView2 = findViewById(R.id.result_text_view2);
 
+        ((TextView)findViewById(R.id.version_text_view)).setText("Version: " + BuildConfig.VERSION_NAME);
         requestWriteStoragePermission(this);
 
         try {
