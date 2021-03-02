@@ -7,6 +7,7 @@ package softkom.com.classes;
 //https://stackoverflow.com/questions/18054720/what-is-callback-in-android
 //https://guides.codepath.com/android/Creating-Custom-Listeners
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.Size;
@@ -27,8 +28,8 @@ public class ImageFaceAndMaskDetection {
     private Bitmap bitmapForFaceFind = null;
     private Classifier.Recognition classifierRecognition = null;
 
-    public ImageFaceAndMaskDetection(boolean enableMaskDetector) {
-        faceDetection = new FaceDetection(MainActivity.appContext, true);
+    public ImageFaceAndMaskDetection(Activity activity, boolean enableMaskDetector) {
+        faceDetection = new FaceDetection(activity.getApplicationContext(), true);
         if (enableMaskDetector)
             maskDetector = new MaskDetector();
         else
@@ -37,8 +38,8 @@ public class ImageFaceAndMaskDetection {
         this.detectionListener = null;
     }
 
-    public ImageFaceAndMaskDetection() {
-        this(true);
+    public ImageFaceAndMaskDetection(Activity activity) {
+        this(activity, true);
     }
 
     public Bitmap getBitmapOfDetectedFace() {
@@ -108,7 +109,7 @@ public class ImageFaceAndMaskDetection {
             return;
 
         bitmapForFaceFind = imageToDetect;
-        FaceClassifier faceClassifier = faceDetection.DetectFaceWithClassifier(bitmapForFaceFind,false);
+        FaceClassifier faceClassifier = faceDetection.DetectFaceWithClassifier(bitmapForFaceFind, false);
 
         if (faceClassifier.faceDetected) {
             detectionListenerFaceClassifier.onFaceDetected(faceClassifier);
