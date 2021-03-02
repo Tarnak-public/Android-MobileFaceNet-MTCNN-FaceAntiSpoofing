@@ -14,3 +14,5 @@
 /aFileChooser/build/intermediates/
 /aFileChooser/build/outputs/logs/
 /aFileChooser/build/outputs/aar/
+/app/.cxx/
+/app/src/main/cppLibs/dlib/include/dlib/build/
