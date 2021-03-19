@@ -25,7 +25,6 @@ import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
-//import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
@@ -43,6 +42,8 @@ import com.inex.mobilefacenet.utils.PermissionHelper;
 
 import java.io.IOException;
 
+//import android.support.annotation.NonNull;
+
 /**
  * More or less straight out of TextureView's doc.
  * <p>
@@ -50,16 +51,14 @@ import java.io.IOException;
  */
 public class LiveCameraTextureViewActivity extends Activity implements TextureView.SurfaceTextureListener {
     private static final String TAG = "LiveCameraTViewActivity";
-
-    private SurfaceTexture mSurfaceTexture;
     TextureView textureView;
+    Bitmap bitmap;
+    long start = System.currentTimeMillis();
+    long end = System.currentTimeMillis();
+    private SurfaceTexture mSurfaceTexture;
     private int displayDegree;
     private byte[] mData;
     private Camera.Size mSize;
-    Bitmap bitmap;
-
-    long start = System.currentTimeMillis();
-    long end = System.currentTimeMillis();
 //    Log.d(TAG, "textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
     @Override
@@ -107,6 +106,19 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (!PermissionHelper.hasCameraPermission(this)) {
+            Toast.makeText(this,
+                    "Camera permission is needed to run this application", Toast.LENGTH_LONG).show();
+            PermissionHelper.launchPermissionSettings(this);
+            finish();
+        } else {
+            startPreview();
+        }
     }
 
     /*
@@ -170,22 +182,8 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         bitmap = textureView.getBitmap();
         end = System.currentTimeMillis();
         //Log.d(TAG, "onSurfaceTextureUpdated() " + surface.getTimestamp());
- //       Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
+        //       Log.d(TAG, "onSurfaceTextureUpdated()->textureView.getBitmap() time elapsed " + (end - start) + "ms");
 
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (!PermissionHelper.hasCameraPermission(this)) {
-            Toast.makeText(this,
-                    "Camera permission is needed to run this application", Toast.LENGTH_LONG).show();
-            PermissionHelper.launchPermissionSettings(this);
-            finish();
-        } else {
-            startPreview();
-        }
     }
 
     private void startPreview() {
@@ -205,7 +203,7 @@ public class LiveCameraTextureViewActivity extends Activity implements TextureVi
         }
 
 //        displayDegree = MyUtil.setCameraDisplayOrientation(0, MainActivity.mCamera, getWindowManager());
-        displayDegree = MyUtil.setCameraDisplayOrientation(MainActivity.CAMERA_ID, MainActivity.mCamera, getWindowManager());
+        displayDegree = MyUtil.setCameraDisplayOrientation(MainActivity.modelsWithCameraIssue, MainActivity.CAMERA_ID, MainActivity.mCamera, getWindowManager());
         // 获取合适的分辨率
         mSize = MyUtil.getOptimalSize(parameters.getSupportedPreviewSizes(), textureView.getWidth(), textureView.getHeight());
         parameters.setPreviewSize(mSize.width, mSize.height);

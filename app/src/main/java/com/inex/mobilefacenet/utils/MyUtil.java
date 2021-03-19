@@ -1,5 +1,6 @@
 package com.inex.mobilefacenet.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -303,7 +304,7 @@ public class MyUtil {
      * @param camera   camera
      * @return
      */
-    public static int setCameraDisplayOrientation(int cameraId, Camera camera, WindowManager windowManager) {
+    public static int setCameraDisplayOrientation(List<String> modelsWithCameraIssue, int cameraId, Camera camera, WindowManager windowManager) {
         Camera.CameraInfo info = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, info);
         int rotation = windowManager.getDefaultDisplay().getRotation();
@@ -326,7 +327,7 @@ public class MyUtil {
         }
         int displayDegree;
         Log.d("setCameraDisplayOrientation", Build.MODEL);
-        if (MainActivity.modelsWithCameraIssue.contains(Build.MODEL)) {
+        if (modelsWithCameraIssue.contains(Build.MODEL)) {
             displayDegree = 270;
             Log.d("setCameraDisplayOrientation", "For this model workaround for camera rotation was needed.");
         } else {
