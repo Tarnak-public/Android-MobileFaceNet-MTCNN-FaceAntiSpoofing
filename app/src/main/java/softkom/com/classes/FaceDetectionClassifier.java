@@ -9,7 +9,7 @@ import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
 import java.util.Vector;
 
-public class FaceClassifier {
+public class FaceDetectionClassifier {
     public Bitmap sourceBitmap;
     public Bitmap faceBitmap;
     public Rect faceRect;

@@ -36,7 +36,7 @@ import org.tensorflow.lite.examples.detection.tflite.Classifier;
 
 import softkom.com.classes.AutoFitTextureView;
 import softkom.com.classes.CameraSurfaceListener;
-import softkom.com.classes.FaceClassifier;
+import softkom.com.classes.FaceDetectionClassifier;
 import softkom.com.classes.ImageFaceAndMaskDetection;
 
 //import android.support.annotation.NonNull;
@@ -132,7 +132,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
             Bitmap overlayBitmap;
 
             @Override
-            public void onFaceDetected(FaceClassifier faceClassifier) {
+            public void onFaceDetected(FaceDetectionClassifier faceDetectionClassifier) {
 //                Log.d("DetectFaceWithClassifier", "camTextureView dimensions:" + camTextureView.getWidth() + " x " + camTextureView.getHeight() +
 //                        " , overlay1FaceImageView dimensions:" + overlayFaceImageView.getWidth() + " x " + overlayFaceImageView.getHeight()
 //                );
@@ -144,16 +144,16 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
                 }
 //                Bitmap finalOverlay = Bitmap.createBitmap(overlayFaceImageView.getWidth(), overlayFaceImageView.getHeight(), Bitmap.Config.ARGB_8888);
 
-                drawFaceBox(overlayBitmap, faceClassifier.boxes1.get(0), 3);
+                drawFaceBox(overlayBitmap, faceDetectionClassifier.boxes1.get(0), 3);
                 runOnUiThread(() -> runOnUiThread(() -> {
                             overlayFaceImageView.setImageBitmap(overlayBitmap);
-                            camFaceImageView.setImageBitmap(faceClassifier.faceBitmap);
+                            camFaceImageView.setImageBitmap(faceDetectionClassifier.faceBitmap);
                         }
                 ));
             }
 
             @Override
-            public void onNoFaceDetected(FaceClassifier faceClassifier) {
+            public void onNoFaceDetected(FaceDetectionClassifier faceDetectionClassifier) {
                 runOnUiThread(() -> runOnUiThread(() -> {
                     overlayFaceImageView.setImageBitmap(null);
                     camFaceImageView.setImageResource(R.drawable.no_face);
@@ -161,10 +161,10 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
             }
 
             @Override
-            public void onResultOfMaskDetection(FaceClassifier faceClassifier) {
+            public void onResultOfMaskDetection(FaceDetectionClassifier faceDetectionClassifier) {
                 runOnUiThread(() -> {
-                    camStatusTextView.setTextColor(faceClassifier.classifierRecognition.getColor());
-                    camStatusTextView.setText(faceClassifier.classifierRecognition.toString());
+                    camStatusTextView.setTextColor(faceDetectionClassifier.classifierRecognition.getColor());
+                    camStatusTextView.setText(faceDetectionClassifier.classifierRecognition.toString());
                 });
             }
         });

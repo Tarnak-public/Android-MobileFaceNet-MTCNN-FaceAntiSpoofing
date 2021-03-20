@@ -108,17 +108,17 @@ public class ImageFaceAndMaskDetection {
             return;
 
         bitmapForFaceFind = imageToDetect;
-        FaceClassifier faceClassifier = faceDetection.DetectFaceWithClassifier(bitmapForFaceFind,false);
+        FaceDetectionClassifier faceDetectionClassifier = faceDetection.DetectFaceWithClassifier(bitmapForFaceFind,false);
 
-        if (faceClassifier.faceDetected) {
-            detectionListenerFaceClassifier.onFaceDetected(faceClassifier);
+        if (faceDetectionClassifier.faceDetected) {
+            detectionListenerFaceClassifier.onFaceDetected(faceDetectionClassifier);
             if (maskDetector != null) {
                 classifierRecognition = detectMaskInBitmap();
-                faceClassifier.classifierRecognition = classifierRecognition;
-                detectionListenerFaceClassifier.onResultOfMaskDetection(faceClassifier);
+                faceDetectionClassifier.classifierRecognition = classifierRecognition;
+                detectionListenerFaceClassifier.onResultOfMaskDetection(faceDetectionClassifier);
             }
         } else {
-            detectionListenerFaceClassifier.onNoFaceDetected(faceClassifier);
+            detectionListenerFaceClassifier.onNoFaceDetected(faceDetectionClassifier);
         }
     }
 
@@ -150,12 +150,12 @@ public class ImageFaceAndMaskDetection {
     }
 
     public interface DetectionListenerFaceClassifier {
-        void onFaceDetected(FaceClassifier faceClassifier);
+        void onFaceDetected(FaceDetectionClassifier faceDetectionClassifier);
 
-        void onNoFaceDetected(FaceClassifier faceClassifier);
+        void onNoFaceDetected(FaceDetectionClassifier faceDetectionClassifier);
 
         // result of mask detection
-        void onResultOfMaskDetection(FaceClassifier faceClassifier);
+        void onResultOfMaskDetection(FaceDetectionClassifier faceDetectionClassifier);
     }
 }
 

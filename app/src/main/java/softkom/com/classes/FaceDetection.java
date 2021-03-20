@@ -50,36 +50,36 @@ public class FaceDetection {
         return bitmapCroppedToFace;
     }
 
-    public FaceClassifier DetectFaceWithClassifier(Bitmap snapshotFromCameraBitmap, boolean cropAllFaces) {
-        FaceClassifier faceClassifier = new FaceClassifier();
-        faceClassifier.sourceBitmap = snapshotFromCameraBitmap;
-        faceClassifier.faceBitmap = null;
+    public FaceDetectionClassifier DetectFaceWithClassifier(Bitmap snapshotFromCameraBitmap, boolean cropAllFaces) {
+        FaceDetectionClassifier faceDetectionClassifier = new FaceDetectionClassifier();
+        faceDetectionClassifier.sourceBitmap = snapshotFromCameraBitmap;
+        faceDetectionClassifier.faceBitmap = null;
 
         if (snapshotFromCameraBitmap == null)
-            return faceClassifier;
+            return faceDetectionClassifier;
 
-        faceClassifier.boxes1 = mtcnn.detectFaces(snapshotFromCameraBitmap, snapshotFromCameraBitmap.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
-        if (faceClassifier.boxes1.size() == 0)   //no face
-            return faceClassifier;
+        faceDetectionClassifier.boxes1 = mtcnn.detectFaces(snapshotFromCameraBitmap, snapshotFromCameraBitmap.getWidth() / 5); // Only this code detects the face, the following is based on the Box to cut out the face in the picture
+        if (faceDetectionClassifier.boxes1.size() == 0)   //no face
+            return faceDetectionClassifier;
 
         if (cropAllFaces) {
             //faceClassifier.boxes1 - contains faces
         }
 
-        Box box1 = faceClassifier.boxes1.get(0);
+        Box box1 = faceDetectionClassifier.boxes1.get(0);
         box1.toSquareShape();
         box1.limitSquare(snapshotFromCameraBitmap.getWidth(), snapshotFromCameraBitmap.getHeight());
-        faceClassifier.faceRect = box1.transform2Rect();
-        faceClassifier.faceDetected = true;
+        faceDetectionClassifier.faceRect = box1.transform2Rect();
+        faceDetectionClassifier.faceDetected = true;
 
         if (cropDetectedFace)
-            faceClassifier.faceBitmap = MyUtil.crop(snapshotFromCameraBitmap, faceClassifier.faceRect);
+            faceDetectionClassifier.faceBitmap = MyUtil.crop(snapshotFromCameraBitmap, faceDetectionClassifier.faceRect);
 
 //        Log.d("DetectFaceWithClassifier", "DetectFaceWithClassifier source bitmap: " + snapshotFromCameraBitmap.getWidth() +  " x " + snapshotFromCameraBitmap.getHeight() +
 //                " , face bitmap " + faceClassifier.faceBitmap.getWidth() + " x " + faceClassifier.faceBitmap.getHeight() + " , " +
 //                "face: left eye: " + box1.landmark[0].x + " : " + box1.landmark[0].y
 //        );
 
-        return faceClassifier;
+        return faceDetectionClassifier;
     }
 }
