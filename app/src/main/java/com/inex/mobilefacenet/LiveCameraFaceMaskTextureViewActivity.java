@@ -90,7 +90,7 @@ public class LiveCameraFaceMaskTextureViewActivity extends Activity {
     }
 
     private ImageFaceAndMaskDetection camFaceDetector(ImageView camFaceImageView, TextView camStatusTextView, AutoFitTextureView camTextureView, ImageView overlayFaceImageView) {
-        ImageFaceAndMaskDetection faceAndMaskDetection = new ImageFaceAndMaskDetection(false);
+        ImageFaceAndMaskDetection faceAndMaskDetection = new ImageFaceAndMaskDetection(this,false);
         //        regularListenerBitmap(camFaceImageView, camStatusTextView, faceAndMaskDetection);
         classifierListenerBitmap(camFaceImageView, camStatusTextView, faceAndMaskDetection, camTextureView, overlayFaceImageView);
 

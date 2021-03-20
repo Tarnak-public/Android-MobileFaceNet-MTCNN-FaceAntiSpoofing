@@ -24,18 +24,18 @@ import java.io.IOException;
  */
 public class CameraActivity extends AppCompatActivity {
     private static final int IMAGE_FORMAT = ImageFormat.NV21;
-    private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK ;//Camera.CameraInfo.CAMERA_FACING_FRONT;
-
+    private static final int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private static final String LOG_TAG = "CameraPreviewSample";
+    private static final String CAMERA_PARAM_ORIENTATION = "orientation";
+    private static final String CAMERA_PARAM_LANDSCAPE = "landscape";
+    private static final String CAMERA_PARAM_PORTRAIT = "portrait";
     //private SurfaceView mSurfaceView;
     private SurfaceView mSurfaceView;
     private Camera mCamera;
     private Camera.Size mSize;
     private int displayDegree;
-
     private byte[] mData;
     private boolean isPreviewRunning = false;
-
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,13 +87,14 @@ public class CameraActivity extends AppCompatActivity {
 
     /**
      * 打开相机
+     *
      * @param holder SurfaceHolder
      */
     private void openCamera(SurfaceHolder holder) {
         releaseCamera();
         mCamera = Camera.open(CAMERA_ID);//CAMERA_ID
         Camera.Parameters parameters = mCamera.getParameters();
-        displayDegree = MyUtil.setCameraDisplayOrientation(CAMERA_ID, mCamera, getWindowManager());
+        displayDegree = MyUtil.setCameraDisplayOrientation(MainActivity.modelsWithCameraIssue, CAMERA_ID, mCamera, getWindowManager());
 
         // 获取合适的分辨率
         mSize = MyUtil.getOptimalSize(parameters.getSupportedPreviewSizes(), mSurfaceView.getWidth(), mSurfaceView.getHeight());
@@ -140,14 +141,6 @@ public class CameraActivity extends AppCompatActivity {
             mCamera = null;
         }
     }
-
-
-    private static final String LOG_TAG = "CameraPreviewSample";
-    private static final String CAMERA_PARAM_ORIENTATION = "orientation";
-    private static final String CAMERA_PARAM_LANDSCAPE = "landscape";
-    private static final String CAMERA_PARAM_PORTRAIT = "portrait";
-
-
 
 
 }

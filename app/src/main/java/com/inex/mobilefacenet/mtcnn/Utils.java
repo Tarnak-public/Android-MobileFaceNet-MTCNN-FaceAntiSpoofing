@@ -18,10 +18,10 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class Utils {
-    private static int r=150;//(int)(Math.random()*255);
-    private static int g=170;//(int)(Math.random()*255);
-    private static int b=20;//(int)(Math.random()*255);
-    private static Paint paint = new Paint();
+    private static final int r=150;//(int)(Math.random()*255);
+    private static final int g=170;//(int)(Math.random()*255);
+    private static final int b=20;//(int)(Math.random()*255);
+    private static final Paint paint = new Paint();
 
     //Copy the picture and set isMutable=true
     public static Bitmap copyBitmap(Bitmap bitmap){
@@ -57,7 +57,6 @@ public class Utils {
             int y=landmark[i].y;
             //Log.i("Utils","[*] landmark "+x+ "  "+y);
 
-            //drawRect(bitmap,new Rect(x-1,y-1,x+1,y+1 ),thick);
             drawRectColorized(bitmap,new Rect(x-1,y-1,x+1,y+1 ),thick, Color.RED );
         }
     }
